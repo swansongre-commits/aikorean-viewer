@@ -1,0 +1,29 @@
+Noto Sans KR
+============
+
+이 폴더의 NotoSansKR-Regular.ttf / NotoSansKR-Bold.ttf 는
+Google 의 Noto Sans KR 을 이 앱에서 쓰는 글자 범위로 추리고
+가변 축을 굵기 400 / 700 으로 고정한 것입니다.
+
+  원본   : Windows 동봉 NotoSansKR-VF.ttf (가변 폰트, 10.4MB)
+  가공   : fontTools — varLib.instancer(wght 고정) + subset(사용 문자만)
+  결과   : 각 2.4MB
+  글자   : 라틴, 라틴 확장, 문장부호, 통화기호, 화살표, 원문자,
+           한글 자모(U+3131-318E), 한글 음절 전체(U+AC00-D7A3), 전각기호
+
+라이선스
+--------
+SIL Open Font License 1.1 (OFL-1.1)
+
+  https://openfontlicense.org
+  https://github.com/notofonts/noto-cjk
+
+OFL 은 폰트의 임베딩·수정·재배포를 허용합니다. 파생물에도 같은
+라이선스가 적용되며, 폰트를 단독 상품으로 판매하는 것만 금지됩니다.
+이 앱은 폰트를 화면 표시 용도로 함께 배포할 뿐이므로 조건을 충족합니다.
+
+왜 함께 싣는가
+--------------
+사내 서버가 외부망을 막고 있으면 CDN 글꼴을 받아오지 못해 화면이
+다른 글꼴로 떨어집니다. 접속하는 PC 마다 설치된 글꼴도 제각각입니다.
+앱과 함께 실어 두면 어느 환경에서든 같은 화면이 나옵니다.

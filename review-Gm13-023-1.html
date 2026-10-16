@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>검수함 · AI 국어 문항 시스템</title>
+<link rel="stylesheet" href="app.css">
+<!-- 폐쇄망이라 CDN 을 쓰지 않는다. 부분 갱신은 app.js 가 맡고, 폼에는
+     action 과 method 를 남겨 스크립트가 없어도 동작하게 둔다. -->
+</head>
+<body>
+
+
+
+
+<div class="app">
+  <nav class="side" aria-label="메뉴">
+    <a class="side-brand" href="index.html"><b>AI 국어 문항</b><span>2022 개정 성취기준 기반</span></a>
+    <div class="side-g">작업</div>
+    <a class="side-i " href="generate.html">문항 생성
+    <span class="n "></span></a>
+    <a class="side-i " href="work.html">작업 현황
+    <span class="n live" id="nav-jobs">1</span></a>
+    <div class="side-g">문항</div>
+    <a class="side-i " href="index.html">문항 은행
+    <span class="n ">7</span></a>
+    <a class="side-i on" href="review.html">검수함
+    <span class="n ">5</span></a>
+    <a class="side-i " href="papers.html">평가지 · 바구니 2
+    <span class="n ">1</span></a>
+    <div class="side-g">기준</div>
+    <a class="side-i " href="standards.html">성취기준
+    <span class="n "></span></a>
+    <div class="side-foot">미리보기 · 예시 데이터</div>
+  </nav>
+  <div class="content">
+    
+
+
+<div class="rv">
+<div class="rv-main">
+  <div class="rv-nav">
+    <a class="plain" href="review.html">검수함</a> › <b>Gm13-023-1</b>
+    <span class="grow"></span>
+    1 / 5
+    
+    <a class="btn" href="review-Gm13-012-1.html">다음 →</a>
+  </div>
+  <div class="bar" style="margin:0">
+    <b class="sm">중1~3 · 문법 · 단어</b>
+    <span class="st review">검토 필요</span>
+    <span class="st data">자료 문항</span>
+    <span class="st">검수 전</span>
+    
+  </div>
+  <div class="sm muted" style="margin-top:6px">[9국04-02] 단어의 짜임을 분석하여 새말 형성의 원리를 이해한다.
+     · 평가 요소: 단어를 어근과 접사로 나누어 단일어, 합성어, 파생어로 분석하기</div>
+
+  <div class="rv-paper">
+    
+    <p class="qq">〈보기〉의 ㉠~㉤에 대한 설명으로 알맞은 것은?</p>
+    <div class="bx">㉠ 놀이터   ㉡ 첫눈   ㉢ 맨발   ㉣ 개떡   ㉤ 덮개</div>
+    <ol>
+      
+      <li class="">① ㉠은 어근 &#39;놀이&#39;에 접미사 &#39;-터&#39;가 붙어 만들어졌다.
+        </li>
+      
+      <li class="">② ㉡은 접두사 &#39;첫-&#39;이 어근 &#39;눈&#39;에 붙어 만들어졌다.
+        </li>
+      
+      <li class="ans">③ ㉢은 접두사 &#39;맨-&#39;이 어근 &#39;발&#39;에 붙어 만들어졌다.
+        <span class="tag-a">정답</span></li>
+      
+      <li class="">④ ㉣은 합성어이다.
+        </li>
+      
+      <li class="">⑤ ㉤은 어근 &#39;덮-&#39;과 어근 &#39;개&#39;가 결합하여 만들어졌다.
+        </li>
+      
+    </ol>
+  </div>
+
+  
+  <div class="lbl2">해설</div>
+  <div>㉢ &#39;맨발&#39;: 사전 &#39;맨-발&#39;, 파생어(접사 &#39;맨-&#39;)이므로 ③은 알맞은 설명이다.</div>
+  
+  <p class="foot">선택형 문항은 성취기준의 이해·분석·판단 요소만 평가합니다. 표현·생산·태도 요소는 평가하지 않습니다. 이 문항이 실제로 그 성취기준을 평가하는지는 사람 검수로 확정합니다.
+    기출 분석: 기출 분석 없음.</p>
+</div>
+
+<aside class="rv-side">
+  <div class="rv-tabs" role="tablist">
+    <button type="button" class="on" onclick="rvTab(this, 'ev')">근거</button>
+    <button type="button" onclick="rvTab(this, 'chk')">자동 점검</button>
+    <button type="button" onclick="rvTab(this, 'ai')">AI 응시</button>
+    <button type="button" onclick="rvTab(this, 'log')">이력</button>
+  </div>
+
+  <div class="rv-pane" data-pane="ev">
+    
+    <div class="rv-warn"><b>검토 필요 사유</b>
+      <ul><li>먼저 만든 Gm13-019 와 표현이 겹칩니다(0.17).</li></ul></div>
+    
+    
+    
+    <div class="lbl2" style="margin-top:0">선택지별 근거</div>
+    <ul class="rv-notes"><li>① &#39;놀이-터&#39; 합성어. &#39;-터&#39;는 접미사가 아님. 오답</li><li>② &#39;첫-눈&#39; 합성어. &#39;첫-&#39;은 접두사가 아님. 오답</li><li>③ &#39;맨-발&#39; 파생어(접사 &#39;맨-&#39;). 정답</li><li>④ &#39;개-떡&#39; 파생어(접사 &#39;개-&#39;). 오답</li><li>⑤ &#39;덮-개&#39; 파생어(접사 &#39;-개&#39;). 오답</li></ul>
+    
+    <div class="lbl2">근거</div><div class="sm">표준국어대사전 표제어 구성</div>
+    
+  </div>
+
+  <div class="rv-pane" data-pane="chk" hidden>
+    
+    <div class="lbl2" style="margin-top:0">다른 모델의 정답 검증</div>
+    
+      <div class="sm">검증 모델 이 정답을 모른 채 풀어 <b>③</b>을 골랐습니다 ·
+        정답과 같음</div>
+      
+    
+    
+    
+    <div class="lbl2">AI 판정 (점수는 표시만 합니다)</div>
+    <dl class="kv">
+      
+        <dt>성취기준 부합</dt><dd>100</dd>
+      
+        <dt>유형 목적</dt><dd>100</dd>
+      
+        <dt>정답 유일성</dt><dd>100</dd>
+      
+        <dt>오답 매력도</dt><dd>90</dd>
+      
+        <dt>학년 수준</dt><dd>100</dd>
+      
+      <dt>종합</dt><dd>적합</dd>
+    </dl>
+    
+    
+  </div>
+
+  <div class="rv-pane" data-pane="ai" hidden>
+    <div class="lbl2" style="margin-top:0">AI 응시 결과 (학생 정답률이 아닙니다)</div>
+    
+
+
+  
+    <p class="muted sm">AI 응시를 하지 않았습니다. 정답이 맞는지도 확인되지
+      않은 상태입니다. 목록에서 [선택 AI 응시]로 돌릴 수 있습니다.</p>
+  
+
+    <form method="post" action="/jobs/measure" style="margin-top:12px">
+      <input type="hidden" name="ids" value="Gm13-023-1">
+      <button class="btn" type="submit">AI 응시 돌리기</button>
+    </form>
+  </div>
+
+  <div class="rv-pane" data-pane="log" hidden>
+    <p class="sm muted">첫 시도에 만들었습니다.</p>
+    <p class="sm muted">검수: 검수 전 · 생성 2026-10-16 14:40</p>
+  </div>
+
+  <form class="rv-foot" method="post" action="/review/decide" id="rvform">
+    <input type="hidden" name="id" value="Gm13-023-1">
+    <input type="hidden" name="next_id" value="Gm13-012-1">
+    <b>검수</b>
+    <label><input type="checkbox" class="rvchk" onchange="rvSync()"> 성취기준의 요소를 평가한다</label>
+    <label><input type="checkbox" class="rvchk" onchange="rvSync()"> 정답이 하나로 정해진다</label>
+    <label><input type="checkbox" class="rvchk" onchange="rvSync()"> 근거가 사전·규범·지문과 맞다</label>
+    <textarea name="memo" rows="2" placeholder="반려 사유 또는 메모" aria-label="메모"></textarea>
+    <div class="rv-act">
+      <button class="btn danger rj" type="submit" name="decision" value="rejected">반려</button>
+      <button class="btn primary ap" type="submit" name="decision" value="approved" id="apbtn" disabled
+              title="세 가지를 확인하면 누를 수 있습니다">승인하고 다음 문항</button>
+    </div>
+    
+  </form>
+</aside>
+</div>
+<script>
+function rvTab(btn, pane) {
+  document.querySelectorAll('.rv-tabs button').forEach(b => b.classList.toggle('on', b === btn));
+  document.querySelectorAll('.rv-pane').forEach(p => { p.hidden = p.dataset.pane !== pane; });
+}
+/* 세 가지를 확인해야 승인할 수 있다. 반려는 언제든 된다 */
+function rvSync() {
+  const all = [...document.querySelectorAll('.rvchk')];
+  document.getElementById('apbtn').disabled = !all.every(c => c.checked);
+}
+</script>
+
+
+  </div>
+</div>
+
+<!-- 작업 목록은 보이지 않게 읽어 두고 메뉴의 숫자와 화면 갱신에만 쓴다 -->
+<div id="joblist" hidden></div>
+
+<div id="modal-back" class="modal-back" hidden onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-x" onclick="closeModal()" aria-label="닫기">✕</button>
+    <div id="modal"></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+
+<div style="position:fixed;left:50%;top:0;transform:translateX(-50%);z-index:2000;background:#111;color:#fff;
+  font-size:12px;padding:4px 12px;border-radius:0 0 6px 6px">미리보기 · 예시 데이터입니다. 저장, 생성, 삭제는 되지 않습니다</div>
+<script>
+/* 정적 미리보기: 서버 조각은 미리 뽑아 둔 것으로 답하고, 쓰기는 막는다 */
+const FRAG = {"/jobs": "\n<div id=\"job-sum\" hidden\n     data-run=\"1\" data-q=\"0\"\n     data-done=\"2\" data-fail=\"0\"\n     data-total=\"3\"><\/div>\n\n\n  \n\n  \n    \n    \n    \n    <div class=\"job running\" data-id=\"36\">\n      <span class=\"job-s\">진행중<\/span>\n\n      <span class=\"job-t\">문항 생성 · 중1~3 문법 3문항 x 4<\/span>\n\n      <span class=\"job-p\">7/12 AI판정<\/span>\n\n      <span class=\"job-x\">\n        \n          \n          <form method=\"post\" action=\"/jobs/36/cancel\" class=\"inline\"\n                onsubmit=\"event.preventDefault(); jobPost(this)\">\n            <button class=\"btn xs\" type=\"submit\" \n                    title=\"다음 단계로 넘어갈 때 멈춥니다\">중단<\/button>\n          <\/form>\n        \n      <\/span>\n\n      \n    <\/div>\n  \n    \n    \n    \n    <a class=\"job done go\" data-id=\"35\" href=\"index.html\" title=\"눌러서 결과 보기\">\n      <span class=\"job-s\">완료<\/span>\n\n      <span class=\"job-t\">문항 생성 · 중1~3 문법 1문항 x 4<\/span>\n\n      <span class=\"job-p\"><\/span>\n\n      <span class=\"job-x\">\n        \n          <span class=\"job-go\">보기 ›<\/span>\n        \n      <\/span>\n\n      \n    <\/a>\n  \n    \n    \n    \n    <a class=\"job done go\" data-id=\"32\" href=\"index.html\" title=\"눌러서 결과 보기\">\n      <span class=\"job-s\">완료<\/span>\n\n      <span class=\"job-t\">문항 생성 · 중1~3 문법 1문항 x 4<\/span>\n\n      <span class=\"job-p\"><\/span>\n\n      <span class=\"job-x\">\n        \n          <span class=\"job-go\">보기 ›<\/span>\n        \n      <\/span>\n\n      \n    <\/a>\n  \n\n  \n    <form method=\"post\" action=\"/jobs/clear\" class=\"inline\"\n          onsubmit=\"event.preventDefault(); jobPost(this)\">\n      <button class=\"btn xs\" type=\"submit\">끝난 작업 지우기<\/button>\n    <\/form>\n  \n", "/work": "\n\n\n\n<div class=\"work\">\n<div class=\"page\">\n  <div class=\"page-h\">\n    <div class=\"grow\"><h1>작업 현황<\/h1>\n      <div class=\"sub\">동시 생성 2 · 최근 1시간 한도 초과(429) 0회<\/div><\/div>\n    \n    <form method=\"post\" action=\"/jobs/clear\" class=\"inline\"><button class=\"btn\" type=\"submit\">끝난 작업 지우기<\/button><\/form>\n    \n  <\/div>\n\n  \n\n  \n  \n  <div class=\"jcard \">\n    <div class=\"jcard-h\">\n      <span class=\"live\">진행 중<\/span>\n      <b>#36 · 문항 생성 · 중1~3 문법 3문항 x 4<\/b>\n      <span class=\"grow\"><\/span>\n      <span class=\"sm muted\">7 / 12 · 1분 42초 경과<\/span>\n      <form method=\"post\" action=\"/jobs/36/cancel\" class=\"inline\">\n        <button class=\"btn danger\" type=\"submit\" \n                title=\"다음 단계로 넘어갈 때 멈춥니다\">중단<\/button>\n      <\/form>\n    <\/div>\n    <div class=\"pbar\"><i style=\"width:58%\"><\/i><\/div>\n    \n    <table class=\"sgrid\">\n      <thead><tr><th style=\"width:80px\">문항<\/th><th>문항생성<\/th><th>구조검증<\/th><th>AI판정<\/th><th>AI응시<\/th><th>해설작성<\/th><th>상태<\/th><\/tr><\/thead>\n      <tbody>\n      \n      \n      \n      <tr>\n        <td>8 / 12<\/td>\n        \n          \n            <td><span class=\"dot done\"><\/span>10초<\/td>\n          \n        \n          \n            <td><span class=\"dot \"><\/span><\/td>\n          \n        \n          \n            <td><span class=\"dot done\"><\/span>6초<\/td>\n          \n        \n          \n            <td><span class=\"dot done\"><\/span>9초<\/td>\n          \n        \n          \n            <td><span class=\"dot \"><\/span><\/td>\n          \n        \n        <td><span class=\"st passed\">자동 점검 통과<\/span>\n             <span class=\"sm muted\">25초<\/span>\n          <\/td>\n      <\/tr>\n      \n      \n      \n      <tr>\n        <td>9 / 12<\/td>\n        \n          <td><span class=\"dot done\"><\/span><\/td>\n          \n        \n          <td><span class=\"dot done\"><\/span><\/td>\n          \n        \n          <td class=\"cur-t\"><span class=\"dot cur\"><\/span>진행 중<\/td>\n          \n        \n          <td><span class=\"dot\"><\/span><\/td>\n        \n          <td><span class=\"dot\"><\/span><\/td>\n        \n        <td>AI판정<\/td>\n      <\/tr>\n      \n      \n      \n      <tr>\n        <td>10 / 12<\/td>\n        \n          <td class=\"cur-t\"><span class=\"dot cur\"><\/span>진행 중<\/td>\n          \n        \n          <td><span class=\"dot\"><\/span><\/td>\n        \n          <td><span class=\"dot\"><\/span><\/td>\n        \n          <td><span class=\"dot\"><\/span><\/td>\n        \n          <td><span class=\"dot\"><\/span><\/td>\n        \n        <td>문항생성<\/td>\n      <\/tr>\n      \n      <\/tbody>\n    <\/table>\n    \n  <\/div>\n  \n\n  \n  <div class=\"lbl2\">끝난 작업<\/div>\n  <table class=\"tbl2\">\n    <thead><tr><th style=\"width:56px\">번호<\/th><th>내용<\/th><th style=\"width:70px\">만듦<\/th>\n      <th style=\"width:80px\">검토 필요<\/th><th style=\"width:60px\">실패<\/th><th style=\"width:90px\">소요<\/th>\n      <th style=\"width:80px\">429 대기<\/th><th style=\"width:110px\"><\/th><\/tr><\/thead>\n    <tbody>\n    \n    \n    <tr>\n      <td class=\"id\">#35<\/td>\n      <td class=\"q\" title=\"문항 생성 · 중1~3 문법 1문항 x 4\">문항 생성 · 중1~3 문법 1문항 x 4\n        \n        <\/td>\n      <td>4<\/td>\n      <td>0<\/td>\n      <td>0<\/td>\n      <td>22초<\/td>\n      <td class=\"\">0초<\/td>\n      <td><a class=\"btn xs\" href=\"index.html\">결과 보기<\/a>\n        <\/td>\n    <\/tr>\n    \n    \n    <tr>\n      <td class=\"id\">#32<\/td>\n      <td class=\"q\" title=\"문항 생성 · 중1~3 문법 1문항 x 4\">문항 생성 · 중1~3 문법 1문항 x 4\n        \n        <\/td>\n      <td>4<\/td>\n      <td>0<\/td>\n      <td>0<\/td>\n      <td>6분 7초<\/td>\n      <td class=\"warn-n\">360초<\/td>\n      <td><a class=\"btn xs\" href=\"index.html\">결과 보기<\/a>\n        <\/td>\n    <\/tr>\n    \n    <\/tbody>\n  <\/table>\n  \n<\/div>\n\n<aside class=\"work-side\">\n  <b style=\"font-size:16px\">단계별 평균 소요<\/b>\n  <div class=\"sm muted\">최근 20세트 기준<\/div>\n  \n  <div class=\"meter\"><div class=\"h\">문항생성<b>18초<\/b><\/div>\n    <div class=\"b\"><i style=\"width:100%\"><\/i><\/div><\/div>\n  \n  <div class=\"meter\"><div class=\"h\">구조검증<b>0초<\/b><\/div>\n    <div class=\"b\"><i style=\"width:0%\"><\/i><\/div><\/div>\n  \n  <div class=\"meter\"><div class=\"h\">AI판정<b>9초<\/b><\/div>\n    <div class=\"b\"><i style=\"width:50%\"><\/i><\/div><\/div>\n  \n  <div class=\"meter\"><div class=\"h\">AI응시<b>0초<\/b><\/div>\n    <div class=\"b\"><i style=\"width:0%\"><\/i><\/div><\/div>\n  \n  <div class=\"meter\"><div class=\"h\">해설작성<b>0초<\/b><\/div>\n    <div class=\"b\"><i style=\"width:0%\"><\/i><\/div><\/div>\n  \n  <div style=\"border-top:1px solid var(--line);margin-top:16px;padding-top:12px\">\n    <b>게이트웨이 (최근 1시간)<\/b>\n    <dl class=\"kv\" style=\"grid-template-columns:1fr auto\">\n      <dt>호출 수<\/dt><dd>0회<\/dd>\n      <dt>호출 시간 합<\/dt><dd>0초<\/dd>\n      <dt>한도 초과(429)<\/dt><dd>0회 · 대기 6분 0초<\/dd>\n      <dt>동시 생성<\/dt><dd>2 (AIKOR_PARALLEL)<\/dd>\n    <\/dl>\n    <p class=\"sm muted\">호출 기록은 작업이 끝날 때 남습니다. 동시에 돈 작업이 있으면 서로의 몫이 섞일 수 있습니다.<\/p>\n  <\/div>\n<\/aside>\n<\/div>", "/items/Gm13-024-1/preview": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Gm13-024-1<\/b>\n  <span class=\"st passed\">자동 점검 통과<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">중1~3 문법 · 단어<\/div>\n<div class=\"sm muted\">[9국04-02] 단어의 짜임을 분석하여 새말 형성의 원리를 이해한다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">〈보기〉의 ㉠~㉤에 대한 설명으로 알맞은 것은?<\/p>\n  <div class=\"bx\">㉠ 맨발   ㉡ 첫눈   ㉢ 볶음밥   ㉣ 지우개   ㉤ 풋고추<\/div>\n  <ol>\n    \n    <li class=\"\">① ㉠은 어근 &#39;맨&#39;과 어근 &#39;발&#39;이 결합하여 만들어졌다.<\/li>\n    \n    <li class=\"\">② ㉡은 접두사 &#39;첫-&#39;이 어근 &#39;눈&#39;에 붙어 만들어졌다.<\/li>\n    \n    <li class=\"ans\">③ ㉢은 합성어이다.<\/li>\n    \n    <li class=\"\">④ ㉣은 합성어이다.<\/li>\n    \n    <li class=\"\">⑤ ㉤은 어근 &#39;풋&#39;과 어근 &#39;고추&#39;가 결합하여 만들어졌다.<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>표준국어대사전 표제어 구성<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>③ 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Gm13-024-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Gm13-024-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Gm13-024-1')\">삭제<\/button>\n  \n<\/div>", "/items/Gm13-024-1": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Gm13-024-1<\/b>\n  <span class=\"st passed\">자동 점검 통과<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">중1~3 문법 · 단어<\/div>\n<div class=\"sm muted\">[9국04-02] 단어의 짜임을 분석하여 새말 형성의 원리를 이해한다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">〈보기〉의 ㉠~㉤에 대한 설명으로 알맞은 것은?<\/p>\n  <div class=\"bx\">㉠ 맨발   ㉡ 첫눈   ㉢ 볶음밥   ㉣ 지우개   ㉤ 풋고추<\/div>\n  <ol>\n    \n    <li class=\"\">① ㉠은 어근 &#39;맨&#39;과 어근 &#39;발&#39;이 결합하여 만들어졌다.<\/li>\n    \n    <li class=\"\">② ㉡은 접두사 &#39;첫-&#39;이 어근 &#39;눈&#39;에 붙어 만들어졌다.<\/li>\n    \n    <li class=\"ans\">③ ㉢은 합성어이다.<\/li>\n    \n    <li class=\"\">④ ㉣은 합성어이다.<\/li>\n    \n    <li class=\"\">⑤ ㉤은 어근 &#39;풋&#39;과 어근 &#39;고추&#39;가 결합하여 만들어졌다.<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>표준국어대사전 표제어 구성<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>③ 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Gm13-024-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Gm13-024-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Gm13-024-1')\">삭제<\/button>\n  \n<\/div>", "/items/Gm13-023-1/preview": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Gm13-023-1<\/b>\n  <span class=\"st review\">검토 필요<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">중1~3 문법 · 단어<\/div>\n<div class=\"sm muted\">[9국04-02] 단어의 짜임을 분석하여 새말 형성의 원리를 이해한다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">〈보기〉의 ㉠~㉤에 대한 설명으로 알맞은 것은?<\/p>\n  <div class=\"bx\">㉠ 놀이터   ㉡ 첫눈   ㉢ 맨발   ㉣ 개떡   ㉤ 덮개<\/div>\n  <ol>\n    \n    <li class=\"\">① ㉠은 어근 &#39;놀이&#39;에 접미사 &#39;-터&#39;가 붙어 만들어졌다.<\/li>\n    \n    <li class=\"\">② ㉡은 접두사 &#39;첫-&#39;이 어근 &#39;눈&#39;에 붙어 만들어졌다.<\/li>\n    \n    <li class=\"ans\">③ ㉢은 접두사 &#39;맨-&#39;이 어근 &#39;발&#39;에 붙어 만들어졌다.<\/li>\n    \n    <li class=\"\">④ ㉣은 합성어이다.<\/li>\n    \n    <li class=\"\">⑤ ㉤은 어근 &#39;덮-&#39;과 어근 &#39;개&#39;가 결합하여 만들어졌다.<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>표준국어대사전 표제어 구성<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>③ 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Gm13-023-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Gm13-023-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Gm13-023-1')\">삭제<\/button>\n  \n<\/div>", "/items/Gm13-023-1": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Gm13-023-1<\/b>\n  <span class=\"st review\">검토 필요<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">중1~3 문법 · 단어<\/div>\n<div class=\"sm muted\">[9국04-02] 단어의 짜임을 분석하여 새말 형성의 원리를 이해한다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">〈보기〉의 ㉠~㉤에 대한 설명으로 알맞은 것은?<\/p>\n  <div class=\"bx\">㉠ 놀이터   ㉡ 첫눈   ㉢ 맨발   ㉣ 개떡   ㉤ 덮개<\/div>\n  <ol>\n    \n    <li class=\"\">① ㉠은 어근 &#39;놀이&#39;에 접미사 &#39;-터&#39;가 붙어 만들어졌다.<\/li>\n    \n    <li class=\"\">② ㉡은 접두사 &#39;첫-&#39;이 어근 &#39;눈&#39;에 붙어 만들어졌다.<\/li>\n    \n    <li class=\"ans\">③ ㉢은 접두사 &#39;맨-&#39;이 어근 &#39;발&#39;에 붙어 만들어졌다.<\/li>\n    \n    <li class=\"\">④ ㉣은 합성어이다.<\/li>\n    \n    <li class=\"\">⑤ ㉤은 어근 &#39;덮-&#39;과 어근 &#39;개&#39;가 결합하여 만들어졌다.<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>표준국어대사전 표제어 구성<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>③ 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Gm13-023-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Gm13-023-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Gm13-023-1')\">삭제<\/button>\n  \n<\/div>", "/items/Gm13-018-1/preview": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Gm13-018-1<\/b>\n  <span class=\"st approved\">승인<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">중1~3 문법 · 문장<\/div>\n<div class=\"sm muted\">[9국04-04] 문장의 짜임을 이해하고 표현 효과를 고려하여 문장을 구성한다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">〈보기〉의 ㉠~㉤에 대한 설명으로 알맞은 것은?<\/p>\n  <div class=\"bx\">㉠ 할아버지는 마음이 따뜻하시다.\n㉡ 내가 어제 읽은 책은 무척 재미있었다.\n㉢ 눈이 많이 내리면 학교가 쉰다.\n㉣ 할머니께서 시골에서 감자와 고구마를 보내셨다.\n㉤ 주말에 우리는 영화를 보거나 산책을 한다.<\/div>\n  <ol>\n    \n    <li class=\"\">① ㉣은 겹문장이다.<\/li>\n    \n    <li class=\"\">② ㉡은 명사절을 안은 문장이다.<\/li>\n    \n    <li class=\"ans\">③ ㉠은 서술절을 안은 문장이다.<\/li>\n    \n    <li class=\"\">④ ㉤은 종속적으로 이어진 문장이다.<\/li>\n    \n    <li class=\"\">⑤ ㉢은 대등하게 이어진 문장이다.<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>문장의 짜임(학교 문법)<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>③ 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Gm13-018-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Gm13-018-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Gm13-018-1')\">삭제<\/button>\n  \n<\/div>", "/items/Gm13-018-1": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Gm13-018-1<\/b>\n  <span class=\"st approved\">승인<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">중1~3 문법 · 문장<\/div>\n<div class=\"sm muted\">[9국04-04] 문장의 짜임을 이해하고 표현 효과를 고려하여 문장을 구성한다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">〈보기〉의 ㉠~㉤에 대한 설명으로 알맞은 것은?<\/p>\n  <div class=\"bx\">㉠ 할아버지는 마음이 따뜻하시다.\n㉡ 내가 어제 읽은 책은 무척 재미있었다.\n㉢ 눈이 많이 내리면 학교가 쉰다.\n㉣ 할머니께서 시골에서 감자와 고구마를 보내셨다.\n㉤ 주말에 우리는 영화를 보거나 산책을 한다.<\/div>\n  <ol>\n    \n    <li class=\"\">① ㉣은 겹문장이다.<\/li>\n    \n    <li class=\"\">② ㉡은 명사절을 안은 문장이다.<\/li>\n    \n    <li class=\"ans\">③ ㉠은 서술절을 안은 문장이다.<\/li>\n    \n    <li class=\"\">④ ㉤은 종속적으로 이어진 문장이다.<\/li>\n    \n    <li class=\"\">⑤ ㉢은 대등하게 이어진 문장이다.<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>문장의 짜임(학교 문법)<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>③ 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Gm13-018-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Gm13-018-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Gm13-018-1')\">삭제<\/button>\n  \n<\/div>", "/items/Gh23-004-1/preview": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Gh23-004-1<\/b>\n  <span class=\"st passed\">자동 점검 통과<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">고2~3 문법 · 문장<\/div>\n<div class=\"sm muted\">[12화언01-03] 품사와 문장 구조에 대한 지식을 활용하여 언어 자료를 분석하고 설명한다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">〈보기〉의 ㉠~㉤에 대해 탐구한 내용으로 적절한 것은?<\/p>\n  <div class=\"bx\">㉠ 내가 어제 읽은 책은 재미있었지만 결말이 아쉬웠다.\n㉡ 비가 오는 소리가 들려서 나는 창문을 닫았다.\n㉢ 나는 그가 범인임을 알았지만 아무에게도 말하지 않았다.\n㉣ 민지는 &#34;같이 가자.&#34;라고 외쳤지만 아무도 대답하지 않았다.\n㉤ 동생이 상을 받았음이 알려져서 온 가족이 기뻐했다.<\/div>\n  <ol>\n    \n    <li class=\"\">① ㉠은 관형절 &#39;내가 어제 읽은&#39;에는 생략된 성분이 없고, 앞 절과 뒤 절이 대등하게 이어져 있다.<\/li>\n    \n    <li class=\"ans\">② ㉡은 관형절 &#39;비가 오는&#39;에는 생략된 성분이 없고, 연결 어미 &#39;-어서&#39;가 앞뒤 절을 &#39;원인&#39;의 관계로 잇는다.<\/li>\n    \n    <li class=\"\">③ ㉢은 명사절 &#39;그가 범인임&#39;이 주어의 구실을 하고, 연결 어미 &#39;-지만&#39;이 앞뒤 절을 &#39;대조&#39;의 관계로 잇는다.<\/li>\n    \n    <li class=\"\">④ ㉣은 인용 조사 &#39;라고&#39;를 써서 남의 말을 간접 인용하였고, 앞 절과 뒤 절이 대등하게 이어져 있다.<\/li>\n    \n    <li class=\"\">⑤ ㉤은 명사절 &#39;동생이 상을 받았음&#39;이 주어의 구실을 하고, 앞 절과 뒤 절이 대등하게 이어져 있다.<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>문장 구조(학교 문법)<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>② 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Gh23-004-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Gh23-004-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Gh23-004-1')\">삭제<\/button>\n  \n<\/div>", "/items/Gh23-004-1": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Gh23-004-1<\/b>\n  <span class=\"st passed\">자동 점검 통과<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">고2~3 문법 · 문장<\/div>\n<div class=\"sm muted\">[12화언01-03] 품사와 문장 구조에 대한 지식을 활용하여 언어 자료를 분석하고 설명한다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">〈보기〉의 ㉠~㉤에 대해 탐구한 내용으로 적절한 것은?<\/p>\n  <div class=\"bx\">㉠ 내가 어제 읽은 책은 재미있었지만 결말이 아쉬웠다.\n㉡ 비가 오는 소리가 들려서 나는 창문을 닫았다.\n㉢ 나는 그가 범인임을 알았지만 아무에게도 말하지 않았다.\n㉣ 민지는 &#34;같이 가자.&#34;라고 외쳤지만 아무도 대답하지 않았다.\n㉤ 동생이 상을 받았음이 알려져서 온 가족이 기뻐했다.<\/div>\n  <ol>\n    \n    <li class=\"\">① ㉠은 관형절 &#39;내가 어제 읽은&#39;에는 생략된 성분이 없고, 앞 절과 뒤 절이 대등하게 이어져 있다.<\/li>\n    \n    <li class=\"ans\">② ㉡은 관형절 &#39;비가 오는&#39;에는 생략된 성분이 없고, 연결 어미 &#39;-어서&#39;가 앞뒤 절을 &#39;원인&#39;의 관계로 잇는다.<\/li>\n    \n    <li class=\"\">③ ㉢은 명사절 &#39;그가 범인임&#39;이 주어의 구실을 하고, 연결 어미 &#39;-지만&#39;이 앞뒤 절을 &#39;대조&#39;의 관계로 잇는다.<\/li>\n    \n    <li class=\"\">④ ㉣은 인용 조사 &#39;라고&#39;를 써서 남의 말을 간접 인용하였고, 앞 절과 뒤 절이 대등하게 이어져 있다.<\/li>\n    \n    <li class=\"\">⑤ ㉤은 명사절 &#39;동생이 상을 받았음&#39;이 주어의 구실을 하고, 앞 절과 뒤 절이 대등하게 이어져 있다.<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>문장 구조(학교 문법)<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>② 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Gh23-004-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Gh23-004-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Gh23-004-1')\">삭제<\/button>\n  \n<\/div>", "/items/Ge34-007-1/preview": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Ge34-007-1<\/b>\n  <span class=\"st approved\">승인<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">초3~4 문법 · 담화<\/div>\n<div class=\"sm muted\">[4국04-04] 글과 담화에 쓰인 높임 표현과 지시⋅접속 표현을 이해하고 상황에 맞게 표현한다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">〈보기〉의 상황에서 높임 표현을 바르게 쓴 문장은 무엇인가요?<\/p>\n  <div class=\"bx\">민지는 주말에 할머니 댁에 가서 하루를 지냈습니다. 그날 있었던 일을 일기로 썼습니다. (문장 속 &#39;나&#39; 는 민지입니다.)<\/div>\n  <ol>\n    \n    <li class=\"\">① 나는 저녁을 먹고 일찍 주무셨다.<\/li>\n    \n    <li class=\"ans\">② 할머니께서 마당에 계셨다.<\/li>\n    \n    <li class=\"\">③ 할머니께서 잘 왔다고 말했다.<\/li>\n    \n    <li class=\"\">④ 할머니께서 나에게 용돈을 드렸다.<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>표준국어대사전 높임말<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>② 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Ge34-007-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Ge34-007-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Ge34-007-1')\">삭제<\/button>\n  \n<\/div>", "/items/Ge34-007-1": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Ge34-007-1<\/b>\n  <span class=\"st approved\">승인<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">초3~4 문법 · 담화<\/div>\n<div class=\"sm muted\">[4국04-04] 글과 담화에 쓰인 높임 표현과 지시⋅접속 표현을 이해하고 상황에 맞게 표현한다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">〈보기〉의 상황에서 높임 표현을 바르게 쓴 문장은 무엇인가요?<\/p>\n  <div class=\"bx\">민지는 주말에 할머니 댁에 가서 하루를 지냈습니다. 그날 있었던 일을 일기로 썼습니다. (문장 속 &#39;나&#39; 는 민지입니다.)<\/div>\n  <ol>\n    \n    <li class=\"\">① 나는 저녁을 먹고 일찍 주무셨다.<\/li>\n    \n    <li class=\"ans\">② 할머니께서 마당에 계셨다.<\/li>\n    \n    <li class=\"\">③ 할머니께서 잘 왔다고 말했다.<\/li>\n    \n    <li class=\"\">④ 할머니께서 나에게 용돈을 드렸다.<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>표준국어대사전 높임말<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>② 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Ge34-007-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Ge34-007-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Ge34-007-1')\">삭제<\/button>\n  \n<\/div>", "/items/Ge12-001-1/preview": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Ge12-001-1<\/b>\n  <span class=\"st passed\">자동 점검 통과<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">초1~2 문법 · 어문 규범<\/div>\n<div class=\"sm muted\">[2국04-01] 한글 자모의 이름과 소릿값을 알고 정확하게 발음하고 쓴다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">자음자와 그 이름을 바르게 짝지은 것은 무엇인가요?<\/p>\n  \n  <ol>\n    \n    <li class=\"\">① ㄱ - 기윽<\/li>\n    \n    <li class=\"ans\">② ㄷ - 디귿<\/li>\n    \n    <li class=\"\">③ ㅅ - 시읏<\/li>\n    \n    <li class=\"\">④ ㅈ - 지읃<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>한글 맞춤법 제4항<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>② 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Ge12-001-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Ge12-001-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Ge12-001-1')\">삭제<\/button>\n  \n<\/div>", "/items/Ge12-001-1": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Ge12-001-1<\/b>\n  <span class=\"st passed\">자동 점검 통과<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">초1~2 문법 · 어문 규범<\/div>\n<div class=\"sm muted\">[2국04-01] 한글 자모의 이름과 소릿값을 알고 정확하게 발음하고 쓴다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">자음자와 그 이름을 바르게 짝지은 것은 무엇인가요?<\/p>\n  \n  <ol>\n    \n    <li class=\"\">① ㄱ - 기윽<\/li>\n    \n    <li class=\"ans\">② ㄷ - 디귿<\/li>\n    \n    <li class=\"\">③ ㅅ - 시읏<\/li>\n    \n    <li class=\"\">④ ㅈ - 지읃<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>한글 맞춤법 제4항<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>② 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Ge12-001-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Ge12-001-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Ge12-001-1')\">삭제<\/button>\n  \n<\/div>", "/items/Gm13-012-1/preview": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Gm13-012-1<\/b>\n  <span class=\"st review\">검토 필요<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">중1~3 문법 · 단어<\/div>\n<div class=\"sm muted\">[9국04-03] 품사의 종류와 특성을 이해하고 국어 자료를 분석한다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">〈보기〉의 ㉠~㉤에 대한 설명으로 알맞은 것은?<\/p>\n  <div class=\"bx\">과학 시간에 우리는 ㉠<u>새로운<\/u> 실험 도구를 꺼냈다. 여러 색의 용액을 ㉡<u>조용히<\/u> 섞으며 물방울을 관찰했다. ㉢<u>천천히<\/u> 가열한 뒤 ㉣<u>모든<\/u> 학생이 ㉤<u>맑은<\/u> 빛을 보았다.<\/div>\n  <ol>\n    \n    <li class=\"\">① ㉠은 형태가 변하지 않는 말이다.<\/li>\n    \n    <li class=\"\">② ㉡은 형용사이다.<\/li>\n    \n    <li class=\"ans\">③ ㉢은 부사이다.<\/li>\n    \n    <li class=\"\">④ ㉣은 용언에 속한다.<\/li>\n    \n    <li class=\"\">⑤ ㉤은 관형사이다.<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>표준국어대사전 품사<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>③ 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Gm13-012-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Gm13-012-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Gm13-012-1')\">삭제<\/button>\n  \n<\/div>", "/items/Gm13-012-1": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Gm13-012-1<\/b>\n  <span class=\"st review\">검토 필요<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">중1~3 문법 · 단어<\/div>\n<div class=\"sm muted\">[9국04-03] 품사의 종류와 특성을 이해하고 국어 자료를 분석한다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">〈보기〉의 ㉠~㉤에 대한 설명으로 알맞은 것은?<\/p>\n  <div class=\"bx\">과학 시간에 우리는 ㉠<u>새로운<\/u> 실험 도구를 꺼냈다. 여러 색의 용액을 ㉡<u>조용히<\/u> 섞으며 물방울을 관찰했다. ㉢<u>천천히<\/u> 가열한 뒤 ㉣<u>모든<\/u> 학생이 ㉤<u>맑은<\/u> 빛을 보았다.<\/div>\n  <ol>\n    \n    <li class=\"\">① ㉠은 형태가 변하지 않는 말이다.<\/li>\n    \n    <li class=\"\">② ㉡은 형용사이다.<\/li>\n    \n    <li class=\"ans\">③ ㉢은 부사이다.<\/li>\n    \n    <li class=\"\">④ ㉣은 용언에 속한다.<\/li>\n    \n    <li class=\"\">⑤ ㉤은 관형사이다.<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>표준국어대사전 품사<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>③ 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Gm13-012-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Gm13-012-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Gm13-012-1')\">삭제<\/button>\n  \n<\/div>"};
+const _fetch = window.fetch;
+window.fetch = async (url, opt) => {
+  const u = String(url).replace(location.origin, '');
+  const key = u.split('?')[0];
+  if (FRAG[key] !== undefined) return new Response(FRAG[key], {status: 200});
+  if (opt && opt.method === 'POST') { demoNote(); throw new Error('demo'); }
+  return new Response('<p class="muted">미리보기에서는 볼 수 없습니다.</p>', {status: 200});
+};
+function demoNote() { alert('미리보기입니다. 저장, 생성, 삭제는 실제 프로그램에서만 됩니다.'); }
+document.addEventListener('submit', e => {
+  if ((e.target.getAttribute('method') || 'get').toLowerCase() === 'post' || e.target.id === 'genform') {
+    e.preventDefault(); e.stopImmediatePropagation(); demoNote();
+  } else { e.preventDefault(); }
+}, true);
+</script>
+</body>
+</html>

@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>문항 생성 · AI 국어 문항 시스템</title>
+<link rel="stylesheet" href="app.css">
+<!-- 폐쇄망이라 CDN 을 쓰지 않는다. 부분 갱신은 app.js 가 맡고, 폼에는
+     action 과 method 를 남겨 스크립트가 없어도 동작하게 둔다. -->
+</head>
+<body>
+
+
+
+
+<div class="app">
+  <nav class="side" aria-label="메뉴">
+    <a class="side-brand" href="index.html"><b>AI 국어 문항</b><span>2022 개정 성취기준 기반</span></a>
+    <div class="side-g">작업</div>
+    <a class="side-i on" href="generate.html">문항 생성
+    <span class="n "></span></a>
+    <a class="side-i " href="work.html">작업 현황
+    <span class="n live" id="nav-jobs">1</span></a>
+    <div class="side-g">문항</div>
+    <a class="side-i " href="index.html">문항 은행
+    <span class="n ">7</span></a>
+    <a class="side-i " href="review.html">검수함
+    <span class="n ">5</span></a>
+    <a class="side-i " href="papers.html">평가지 · 바구니 2
+    <span class="n ">1</span></a>
+    <div class="side-g">기준</div>
+    <a class="side-i " href="standards.html">성취기준
+    <span class="n "></span></a>
+    <div class="side-foot">미리보기 · 예시 데이터</div>
+  </nav>
+  <div class="content">
+    
+<div class="gen">
+<div class="page">
+<div class="page-h"><div class="grow"><h1>문항 생성</h1>
+  <div class="sub">성취기준과 유형을 고르면 문항을 만들고 자동 점검까지 마칩니다</div></div></div>
+
+
+
+
+<!-- 생성 폼은 빈 껍데기로 두고, 각 입력이 form 속성으로 여기에 붙는다.
+     HTML 은 폼 중첩을 허용하지 않는데 새 지문 등록 폼은 2단계 안에 있어야
+     흐름이 읽힌다. -->
+<form method="post" action="/generate" id="genform" hidden></form>
+<input type="hidden" name="band" id="f-band" form="genform">
+<input type="hidden" name="area" id="f-area" form="genform">
+
+<!-- ────────── ① 대상 ────────── -->
+<section class="step" id="step1">
+  <div class="step-h"><span class="step-n">1</span>대상
+    <span class="step-sub">어느 학년군의 어느 영역 문항을 만들지 정합니다</span>
+  </div>
+  <div class="segrow">
+    <span class="seglbl">학년군</span>
+    <div class="seg" id="bandseg">
+      
+        <button type="button" class="segbtn" data-band="e12"
+                onclick="setBand('e12')">초1~2</button>
+      
+        <button type="button" class="segbtn" data-band="e34"
+                onclick="setBand('e34')">초3~4</button>
+      
+        <button type="button" class="segbtn" data-band="e56"
+                onclick="setBand('e56')">초5~6</button>
+      
+        <button type="button" class="segbtn" data-band="m13"
+                onclick="setBand('m13')">중1~3</button>
+      
+        <button type="button" class="segbtn" data-band="h1"
+                onclick="setBand('h1')">고1</button>
+      
+        <button type="button" class="segbtn" data-band="h23"
+                onclick="setBand('h23')">고2~3</button>
+      
+    </div>
+  </div>
+  <div class="segrow">
+    <span class="seglbl">영역</span>
+    <div class="seg" id="areaseg">
+      
+        <button type="button" class="segbtn" data-area="read"
+                onclick="setArea('read')">독서</button>
+      
+        <button type="button" class="segbtn" data-area="lit"
+                onclick="setArea('lit')">문학</button>
+      
+        <button type="button" class="segbtn" data-area="gram"
+                onclick="setArea('gram')">문법</button>
+      
+    </div>
+    <span class="muted sm" id="areanote" style="margin:0 0 12px 12px"></span>
+  </div>
+</section>
+
+<!-- ────────── ② 지문 ────────── -->
+<section class="step" id="step2">
+  <div class="step-h"><span class="step-n">2</span>지문
+    <span class="step-sub" id="s2sub">어느 지문으로 만들지 고릅니다</span>
+  </div>
+
+  <div id="nosrc" hidden>
+    <p class="muted sm">문법은 지문 없이 만듭니다. 탐구할 언어 자료가 필요하면
+      문항의 〈보기〉로 들어갑니다. 아래 4단계에서 성취기준과 유형을 고르십시오.</p>
+  </div>
+
+  <div id="srcui">
+    <div class="seg">
+      <button type="button" class="segbtn on" data-mode="exist"
+              onclick="srcMode('exist')">기존 지문 사용</button>
+      <button type="button" class="segbtn" data-mode="new"
+              onclick="srcMode('new')">새 지문 등록</button>
+    </div>
+
+    <!-- 기존 지문 -->
+    <div class="mode" data-mode="exist">
+      <select name="source_id" form="genform" class="sel" id="srcsel"
+              onchange="loadSource()" aria-label="지문">
+        <option value="" data-genre="">지문을 고르십시오</option>
+        
+      </select>
+      <p class="muted sm" id="nosrcmsg" hidden style="margin:10px 0 0">
+        이 영역에 쓸 지문이 아직 없습니다.
+        <button type="button" class="lnk" onclick="srcMode('new')">새 지문
+        등록</button>으로 올려 주십시오.</p>
+      <p class="muted sm" id="notbmsg" hidden style="margin:10px 0 0">
+        이 학년군의 교과서 지문이 아직 등록되지 않았습니다. 국정 교과서 PDF 를
+        <span class="mono">pri_text</span> 폴더에 넣고
+        <span class="mono">tools/build_textbook.py</span> 로 등록합니다.</p>
+      <p class="muted sm" id="tbnote" hidden style="margin:10px 0 0">
+        초등은 국정 교과서에 실린 글을 고치지 않고 지문으로 씁니다. 독서 영역은
+        교과서의 모든 글을, 문학 영역은 시와 이야기를 고를 수 있습니다.</p>
+      <div id="srccard"></div>
+    </div>
+
+    <!-- 새 지문 등록 -->
+    <div class="mode" data-mode="new" hidden>
+      
+
+      <p class="muted sm" id="genrenote" style="margin:0 0 8px"></p>
+
+      <div class="seg sub">
+        <button type="button" class="segbtn on" data-src="paste"
+                onclick="newTab('paste')">붙여넣기</button>
+        <button type="button" class="segbtn" data-src="file"
+                onclick="newTab('file')">파일</button>
+        <button type="button" class="segbtn" data-src="url"
+                onclick="newTab('url')">URL</button>
+      </div>
+
+      <form method="post" action="/sources/extract" class="nf" data-src="paste">
+        <input type="hidden" name="band" class="carry-band">
+        <input type="hidden" name="area" class="carry-area">
+        <textarea name="body" class="ta" rows="8" aria-label="본문"
+                  placeholder="원문을 여기에 붙여넣으십시오"></textarea>
+        <div class="cta">
+          <button class="btn" type="submit">가져오기</button>
+        </div>
+      </form>
+
+      <form method="post" action="/sources/upload" class="nf" data-src="file"
+            enctype="multipart/form-data" hidden>
+        <input type="hidden" name="band" class="carry-band">
+        <input type="hidden" name="area" class="carry-area">
+        <input type="file" name="f" class="txt" aria-label="파일"
+               accept=".pdf,.docx,.txt,.md,.hwp,.html">
+        <div class="cta">
+          <button class="btn" type="submit">가져오기</button>
+          <span class="muted sm">pdf · docx · txt · md · hwp · html · 최대 20MB</span>
+        </div>
+      </form>
+
+      <form method="post" action="/sources/extract" class="nf" data-src="url"
+            hidden>
+        <input type="hidden" name="band" class="carry-band">
+        <input type="hidden" name="area" class="carry-area">
+        <input type="url" name="origin" class="txt" placeholder="https://"
+               aria-label="주소"
+               value="">
+        <div class="cta">
+          <button class="btn" type="submit">가져오기</button>
+          <span class="muted sm">본문만 뽑습니다. 몇 초 걸립니다.</span>
+        </div>
+      </form>
+
+      <!-- 가져온 본문 편집 -->
+      
+    </div>
+  </div>
+</section>
+
+<!-- ────────── ③ 분석 · 추천 ────────── -->
+<section class="step off" id="step3">
+  <div class="step-h"><span class="step-n">3</span>분석 · 유형 추천
+    <span class="step-sub">이 지문에 잘 맞는 유형과 글의 수준을 봅니다</span>
+  </div>
+  <div id="srcdetail">
+    <p class="muted sm">먼저 지문을 고르십시오.</p>
+  </div>
+</section>
+
+<!-- ────────── ④ 성취기준 · 유형 · 생성 ────────── -->
+<section class="step" id="step4">
+  <div class="step-h"><span class="step-n">4</span>성취기준 · 유형 · 생성
+    <span class="step-sub">문항마다 평가할 성취기준을 먼저 정합니다 (필수)</span>
+  </div>
+
+  <p class="sm" style="margin:0 0 10px">성취기준 아래의 유형을 누르면
+    <b>그 성취기준을 평가하는 문항</b> 하나가 구성에 들어갑니다. 고른 문항들이
+    지문 하나에 함께 붙는 한 세트가 됩니다(문법은 문항마다 따로 만듭니다).
+    <span class="reclg" id="reclg" hidden><i></i>지문 분석이 추천한 유형</span>
+  </p>
+  <p class="muted sm" style="margin:0 0 6px">성취기준의 해설과 성취수준은
+    <a class="lnk" href="standards.html" target="_blank" rel="noopener">성취기준 목록</a>에서
+    볼 수 있습니다.</p>
+  <p class="muted sm" style="margin:0 0 10px">선택형 문항은 성취기준의 이해·분석·판단 요소만 평가합니다. 표현·생산·태도 요소는 평가하지 않습니다.
+    기출 분석 자료는 아직 없습니다. 지금은 교육과정(성취기준,
+    해설)만을 근거로 설계합니다. 2022 개정 문항을 분석해 넣으면 성취기준마다
+    기출의 출제 형태가 함께 쓰입니다.</p>
+
+  <div id="stdlist"></div>
+
+</section>
+</div>
+
+<aside class="gen-aside">
+  <b style="font-size:16px">요청 요약</b>
+  <dl class="kv" id="sumbox" style="grid-template-columns:96px 1fr">
+    <dt>대상</dt><dd id="sum-target">-</dd>
+    <dt>문항 구성</dt><dd id="sum-picks">고른 것 없음</dd>
+    <dt>자료 문항</dt><dd id="sum-data">-</dd>
+  </dl>
+  <div class="pickbox" id="pickbox" hidden>
+    <div class="lbl" style="margin:0">문항 구성</div>
+    <ol id="picklist"></ol>
+    <button type="button" class="lnk" onclick="clearPicks()">모두 해제</button>
+    <ul class="flags" id="pickwarn" hidden></ul>
+  </div>
+
+  <div class="cond">
+    <label class="fld"><span id="countlbl">세트 수</span>
+      <input type="number" name="count" value="1" min="1" max="20"
+             form="genform" class="numin" onchange="syncPlan()">
+    </label>
+    <label class="fld">선택지 수
+      <select name="n_choices" form="genform" class="sel sm" id="nchoice"
+              onchange="syncPlan()">
+        <option value="4">4개</option><option value="5">5개</option>
+      </select>
+    </label>
+    <label class="fld">AI 응시
+      <select name="measure_mode" form="genform" class="sel sm" id="mmode"
+              onchange="syncPlan()">
+        
+          <option value="full" >전체 응시 (16조건)</option>
+        
+          <option value="solve" selected>풀이 확인 (상위 3조건)</option>
+        
+          <option value="off" >생략</option>
+        
+      </select>
+    </label>
+    <span class="muted sm" id="modenote"></span>
+  </div>
+
+  <div class="cta">
+    <button type="submit" form="genform" class="btn primary lg" id="gobtn"
+            disabled>생성 시작</button>
+    <span class="est" id="estimate"></span>
+  </div>
+  <p class="sm muted" style="margin:0">자료 문항: 정답을 사전과 어문 규범, 예문 은행으로 정하고
+    프로그램이 근거를 씁니다. 일반 생성보다 빠르고(문항당 약 10~30초) 사실 오류가 적습니다.
+    생성이 끝나면 작업 현황과 검수함에서 봅니다.</p>
+</aside>
+</div>
+
+<script>
+const TYPES = {"g_disc": {"area": "gram", "bogi": false, "name": "\ub2f4\ud654"}, "g_norm": {"area": "gram", "bogi": false, "name": "\uc5b4\ubb38 \uaddc\ubc94"}, "g_phon": {"area": "gram", "bogi": false, "name": "\uc74c\uc6b4"}, "g_sent": {"area": "gram", "bogi": false, "name": "\ubb38\uc7a5"}, "g_word": {"area": "gram", "bogi": false, "name": "\ub2e8\uc5b4"}, "l_apply": {"area": "lit", "bogi": true, "name": "\u3008\ubcf4\uae30\u3009 \uac10\uc0c1"}, "l_content": {"area": "lit", "bogi": false, "name": "\uc791\ud488 \uc774\ud574"}, "l_expr": {"area": "lit", "bogi": false, "name": "\ud45c\ud604\uc0c1 \ud2b9\uc9d5"}, "l_mind": {"area": "lit", "bogi": false, "name": "\uc778\ubb3c\u00b7\ud654\uc790\uc758 \ub9c8\uc74c"}, "l_spot": {"area": "lit", "bogi": false, "name": "\uad6c\uc808\uc758 \uc758\ubbf8"}, "r_apply": {"area": "read", "bogi": true, "name": "\u3008\ubcf4\uae30\u3009 \uc801\uc6a9"}, "r_fact": {"area": "read", "bogi": false, "name": "\ub0b4\uc6a9 \uc77c\uce58"}, "r_flow": {"area": "read", "bogi": false, "name": "\uc804\uac1c \ubc29\uc2dd"}, "r_infer": {"area": "read", "bogi": false, "name": "\ucd94\ub860"}, "r_integrate": {"area": "read", "bogi": true, "name": "\uc8fc\uc81c \ud1b5\ud569"}, "r_judge": {"area": "read", "bogi": false, "name": "\ud3c9\uac00\ud558\uba70 \uc77d\uae30"}, "r_spot": {"area": "read", "bogi": false, "name": "\uad6c\uc808 \uc774\ud574"}, "r_topic": {"area": "read", "bogi": false, "name": "\uc911\uc2ec \ub0b4\uc6a9"}, "r_vocab": {"area": "read", "bogi": false, "name": "\uc5b4\ud718"}};
+const CATALOG = {"e12": {"gram": [{"code": "[2\uad6d04-01]", "extra": [], "genre": null, "scope": "", "standard": "\ud55c\uae00 \uc790\ubaa8\uc758 \uc774\ub984\uacfc \uc18c\ub9bf\uac12\uc744 \uc54c\uace0 \uc815\ud655\ud558\uac8c \ubc1c\uc74c\ud558\uace0 \uc4f4\ub2e4.", "types": ["g_norm"]}, {"code": "[2\uad6d04-02]", "extra": [], "genre": null, "scope": "", "standard": "\uc18c\ub9ac\uc640 \ud45c\uae30\uac00 \ub2e4\ub97c \uc218 \uc788\uc74c\uc744 \uc54c\uace0 \ub2e8\uc5b4\ub97c \ubc14\ub974\uac8c \uc77d\uace0 \uc4f4\ub2e4.", "types": ["g_norm"]}, {"code": "[2\uad6d04-03]", "extra": [], "genre": null, "scope": "", "standard": "\ubb38\uc7a5\uacfc \ubb38\uc7a5 \ubd80\ud638\ub97c \uc54c\ub9de\uac8c \uc4f0\uace0 \ud55c\uae00\uc5d0 \ud638\uae30\uc2ec\uc744 \uac00\uc9c4\ub2e4.", "types": ["g_norm"]}], "lit": [{"code": "[2\uad6d05-01]", "extra": ["l_mind", "l_content"], "genre": null, "scope": "", "standard": "\ub9d0\ub180\uc774, \ub0ad\uc1a1 \ub4f1\uc744 \ud1b5\ud574 \ub9d0\uc758 \uc7ac\ubbf8\uc640 \uc990\uac70\uc6c0\uc744 \ub290\ub080\ub2e4.", "types": []}, {"code": "[2\uad6d05-02]", "extra": ["l_mind"], "genre": null, "scope": "", "standard": "\uc791\ud488\uc744 \ub4e3\uac70\ub098 \uc77d\uc73c\uba74\uc11c \ub290\ub07c\uac70\ub098 \uc0dd\uac01\ud55c \uc810\uc744 \ub9d0\ud55c\ub2e4.", "types": ["l_content"]}, {"code": "[2\uad6d05-03]", "extra": [], "genre": null, "scope": "", "standard": "\uc791\ud488 \uc18d \uc778\ubb3c\uc758 \ubaa8\uc2b5, \ud589\ub3d9, \ub9c8\uc74c\uc744 \uc0c1\uc0c1\ud558\uc5ec \uc2dc, \ub178\ub798, \uc774\uc57c\uae30, \uadf8\ub9bc \ub4f1\uc73c\ub85c \ud45c\ud604\ud55c\ub2e4.", "types": ["l_mind", "l_content"]}, {"code": "[2\uad6d05-04]", "extra": ["l_mind", "l_content"], "genre": null, "scope": "", "standard": "\uc2dc\ub098 \ub178\ub798, \uc774\uc57c\uae30\uc5d0 \ud765\ubbf8\ub97c \uac00\uc9c4\ub2e4.", "types": []}], "read": [{"code": "[2\uad6d02-01]", "extra": ["r_topic", "r_fact", "r_infer", "r_vocab"], "genre": null, "scope": "", "standard": "\uae00\uc790, \ub2e8\uc5b4, \ubb38\uc7a5, \uc9e7\uc740 \uae00\uc744 \uc815\ud655\ud558\uac8c \uc18c\ub9ac \ub0b4\uc5b4 \uc77d\ub294\ub2e4.", "types": []}, {"code": "[2\uad6d02-02]", "extra": ["r_topic", "r_fact", "r_infer", "r_vocab"], "genre": null, "scope": "", "standard": "\uc758\ubbf8\uac00 \uc798 \ub4dc\ub7ec\ub098\ub3c4\ub85d \ubb38\uc7a5\uacfc \uc9e7\uc740 \uae00\uc744 \uc54c\ub9de\uac8c \ub744\uc5b4 \uc77d\ub294\ub2e4.", "types": []}, {"code": "[2\uad6d02-03]", "extra": ["r_infer", "r_vocab"], "genre": null, "scope": "", "standard": "\uae00\uc744 \uc77d\uace0 \uc911\uc2ec \ub0b4\uc6a9\uc744 \ud655\uc778\ud55c\ub2e4.", "types": ["r_topic", "r_fact"]}, {"code": "[2\uad6d02-04]", "extra": ["r_topic", "r_fact", "r_vocab"], "genre": null, "scope": "", "standard": "\uc778\ubb3c\uc758 \ub9c8\uc74c\uc774\ub098 \uc0dd\uac01\uc744 \uc9d0\uc791\ud558\uace0 \uc774\ub97c \uc790\uc2e0\uacfc \ube44\uad50\ud558\uba70 \uae00\uc744 \uc77d\ub294\ub2e4.", "types": ["r_infer"]}, {"code": "[2\uad6d02-05]", "extra": ["r_topic", "r_fact", "r_infer", "r_vocab"], "genre": null, "scope": "", "standard": "\uc77d\uae30\uc5d0 \ud765\ubbf8\ub97c \uac00\uc9c0\uace0 \uc990\uaca8 \uc77d\ub294 \ud0dc\ub3c4\ub97c \uc9c0\ub2cc\ub2e4.", "types": []}]}, "e34": {"gram": [{"code": "[4\uad6d04-01]", "extra": ["g_norm", "g_sent", "g_disc"], "genre": null, "scope": "", "standard": "\ub2e8\uc5b4\uc640 \ub2e8\uc5b4 \uac04\uc758 \uc758\ubbf8 \uad00\uacc4\ub97c \ud30c\uc545\ud55c\ub2e4.", "types": ["g_word"]}, {"code": "[4\uad6d04-02]", "extra": ["g_norm", "g_sent", "g_disc"], "genre": null, "scope": "", "standard": "\ub2e8\uc5b4\ub97c \ubd84\ub958\ud558\uace0 \uad6d\uc5b4\uc0ac\uc804\uc744 \ud65c\uc6a9\ud558\uc5ec \ub2a5\ub3d9\uc801\uc778 \uad6d\uc5b4 \ud65c\ub3d9\uc744 \ud55c\ub2e4.", "types": ["g_word"]}, {"code": "[4\uad6d04-03]", "extra": ["g_norm", "g_word", "g_disc"], "genre": null, "scope": "", "standard": "\uae30\ubcf8\uc801\uc778 \ubb38\uc7a5\uc758 \uc9dc\uc784\uc744 \uc774\ud574\ud558\uace0 \uc801\uc808\ud558\uac8c \uc0ac\uc6a9\ud55c\ub2e4.", "types": ["g_sent"]}, {"code": "[4\uad6d04-04]", "extra": ["g_norm", "g_word"], "genre": null, "scope": "", "standard": "\uae00\uacfc \ub2f4\ud654\uc5d0 \uc4f0\uc778 \ub192\uc784 \ud45c\ud604\uacfc \uc9c0\uc2dc\u22c5\uc811\uc18d \ud45c\ud604\uc744 \uc774\ud574\ud558\uace0 \uc0c1\ud669\uc5d0 \ub9de\uac8c \ud45c\ud604\ud55c\ub2e4.", "types": ["g_sent", "g_disc"]}, {"code": "[4\uad6d04-05]", "extra": ["g_norm", "g_word", "g_sent", "g_disc"], "genre": null, "scope": "", "standard": "\uc5b8\uc5b4\uac00 \uc758\uc0ac\uc18c\ud1b5\uacfc \uad00\uacc4 \ud615\uc131\uc758 \uc218\ub2e8\uc784\uc744 \uc774\ud574\ud558\uace0 \uad6d\uc5b4\ub97c \uc18c\uc911\ud788 \uc5ec\uae30\ub294 \ud0dc\ub3c4\ub97c \uc9c0\ub2cc\ub2e4.", "types": []}], "lit": [{"code": "[4\uad6d05-01]", "extra": ["l_expr"], "genre": null, "scope": "", "standard": "\uc778\ubb3c\uacfc \uc774\uc57c\uae30\uc758 \ud750\ub984\uc744 \uc911\uc2ec\uc73c\ub85c \uc791\ud488\uc744 \uac10\uc0c1\ud55c\ub2e4.", "types": ["l_content", "l_mind"]}, {"code": "[4\uad6d05-02]", "extra": ["l_mind", "l_content", "l_expr"], "genre": null, "scope": "", "standard": "\uc790\uc2e0\uc758 \uacbd\ud5d8\uc744 \ubc14\ud0d5\uc73c\ub85c \uc791\ud488 \uc18d \uc138\uacc4\uc640 \ud604\uc2e4 \uc138\uacc4\ub97c \ube44\uad50\ud558\uc5ec \uc791\ud488\uc744 \uac10\uc0c1\ud55c\ub2e4.", "types": []}, {"code": "[4\uad6d05-03]", "extra": ["l_mind", "l_content", "l_expr"], "genre": null, "scope": "", "standard": "\uc791\ud488\uc744 \ub4e3\uac70\ub098 \uc77d\uace0 \ub9c8\uc74c\uc5d0 \ub4dc\ub294 \uc791\ud488\uc744 \uc18c\uac1c\ud55c\ub2e4.", "types": []}, {"code": "[4\uad6d05-04]", "extra": ["l_mind", "l_content"], "genre": null, "scope": "\uac10\uac01\uc801 \ud45c\ud604\uc744 \uac10\uc0c1\ud558\ub294 \uc694\uc18c\ub9cc \ud3c9\uac00\ud569\ub2c8\ub2e4. \uac10\uac01\uc801 \ud45c\ud604\uc73c\ub85c \ud45c\ud604\ud558\ub294 \uc218\ud589\uc740 \ud3c9\uac00\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.", "standard": "\uac10\uac01\uc801 \ud45c\ud604\uc5d0 \uc720\uc758\ud558\uc5ec \uc791\ud488\uc744 \uac10\uc0c1\ud558\uace0, \uac10\uac01\uc801 \ud45c\ud604\uc744 \ud65c\uc6a9\ud558\uc5ec \uc790\uc2e0\uc758 \uc0dd\uac01\uc774\ub098 \uac10\uc815\uc744 \ud45c\ud604\ud55c\ub2e4.", "types": ["l_expr"]}, {"code": "[4\uad6d05-05]", "extra": ["l_mind", "l_content", "l_expr"], "genre": null, "scope": "", "standard": "\uc7ac\ubbf8\ub098 \uac10\ub3d9\uc744 \ub290\ub07c\uba70 \uc791\ud488\uc744 \uc990\uaca8 \uac10\uc0c1\ud558\ub294 \ud0dc\ub3c4\ub97c \uc9c0\ub2cc\ub2e4.", "types": []}], "read": [{"code": "[4\uad6d02-01]", "extra": ["r_topic", "r_fact", "r_infer", "r_spot", "r_judge", "r_vocab"], "genre": null, "scope": "", "standard": "\uae00\uc758 \uc758\ubbf8\ub97c \ud30c\uc545\ud558\uba70 \uc720\ucc3d\ud558\uac8c \uae00\uc744 \uc77d\ub294\ub2e4.", "types": []}, {"code": "[4\uad6d02-02]", "extra": ["r_fact", "r_infer", "r_spot", "r_judge", "r_vocab"], "genre": null, "scope": "", "standard": "\ubb38\ub2e8\uacfc \uae00\uc5d0\uc11c \uc911\uc2ec \uc0dd\uac01\uc744 \ud30c\uc545\ud558\uace0 \ub0b4\uc6a9\uc744 \uac04\ucd94\ub9b0\ub2e4.", "types": ["r_topic"]}, {"code": "[4\uad6d02-03]", "extra": ["r_topic", "r_fact", "r_infer", "r_spot", "r_judge", "r_vocab"], "genre": null, "scope": "", "standard": "\uc9c8\ubb38\uc744 \ud65c\uc6a9\ud558\uc5ec \uae00\uc744 \uc608\uce21\ud558\uba70 \uc77d\uace0 \uc790\uc2e0\uc758 \uc77d\uae30 \uacfc\uc815\uc744 \uc810\uac80\ud55c\ub2e4.", "types": []}, {"code": "[4\uad6d02-04]", "extra": ["r_topic", "r_fact", "r_infer", "r_spot", "r_vocab"], "genre": null, "scope": "", "standard": "\uae00\uc5d0 \ub098\ud0c0\ub09c \uc0ac\uc2e4\uacfc \uc758\uacac\uc744 \uad6c\ubd84\ud558\uace0 \ud544\uc790\uc640 \uc790\uc2e0\uc758 \uc758\uacac\uc744 \ube44\uad50\ud55c\ub2e4.", "types": ["r_judge"]}, {"code": "[4\uad6d02-05]", "extra": ["r_topic", "r_fact", "r_infer", "r_spot", "r_vocab"], "genre": null, "scope": "", "standard": "\uae00\uc774\ub098 \uc790\ub8cc\uc758 \ucd9c\ucc98\uac00 \ubbff\uc744 \ub9cc\ud55c\uc9c0 \ud310\ub2e8\ud55c\ub2e4.", "types": ["r_judge"]}, {"code": "[4\uad6d02-06]", "extra": ["r_topic", "r_fact", "r_infer", "r_spot", "r_judge", "r_vocab"], "genre": null, "scope": "", "standard": "\ubc14\ub78c\uc9c1\ud55c \uc77d\uae30 \uc2b5\uad00\uc744 \ud615\uc131\ud558\uace0 \uc77d\uae30\uc5d0 \ub300\ud55c \uc790\uc2e0\uac10\uc744 \uae30\ub978\ub2e4.", "types": []}]}, "e56": {"gram": [{"code": "[6\uad6d04-01]", "extra": ["g_norm", "g_word", "g_sent"], "genre": null, "scope": "", "standard": "\uc74c\uc131 \uc5b8\uc5b4 \ubc0f \ubb38\uc790 \uc5b8\uc5b4\uc758 \ud2b9\uc131\uc744 \uc774\ud574\ud558\uace0 \ub2e4\uc591\ud55c \ub9e4\uccb4 \uc790\ub8cc\uc5d0\uc11c \ud45c\ud604 \ud6a8\uacfc\ub97c \ud3c9\uac00\ud55c\ub2e4.", "types": []}, {"code": "[6\uad6d04-02]", "extra": ["g_norm", "g_word", "g_sent"], "genre": null, "scope": "", "standard": "\ud45c\uc900\uc5b4\uc640 \ubc29\uc5b8\uc758 \uae30\ub2a5\uc744 \ud30c\uc545\ud558\uace0 \uc5b8\uc5b4 \uacf5\ub3d9\uccb4\uc640 \uad6d\uc5b4\uc0dd\ud65c\uacfc\uc758 \uad00\uacc4\ub97c \uc774\ud574\ud55c\ub2e4.", "types": []}, {"code": "[6\uad6d04-03]", "extra": ["g_norm", "g_word", "g_sent"], "genre": null, "scope": "", "standard": "\uace0\uc720\uc5b4\uc640 \uad00\uc6a9 \ud45c\ud604\uc758 \uc4f0\uc784\uacfc \uac00\uce58\ub97c \uc774\ud574\ud558\uace0 \uc0c1\ud669\uc5d0 \ub9de\uac8c \ud45c\ud604\ud55c\ub2e4.", "types": []}, {"code": "[6\uad6d04-04]", "extra": ["g_norm", "g_word"], "genre": null, "scope": "", "standard": "\ubb38\uc7a5 \uc131\ubd84\uc744 \uc774\ud574\ud558\uace0 \ud638\uc751 \uad00\uacc4\uac00 \uc62c\ubc14\ub978 \ubb38\uc7a5\uc744 \uad6c\uc131\ud55c\ub2e4.", "types": ["g_sent"]}, {"code": "[6\uad6d04-05]", "extra": ["g_norm", "g_word"], "genre": null, "scope": "", "standard": "\uae00\uacfc \ub2f4\ud654\uc5d0 \uc4f0\uc778 \uc2dc\uac04 \ud45c\ud604\uc744 \uc774\ud574\ud558\uace0 \uc0c1\ud669\uc5d0 \ub9de\uac8c \ud45c\ud604\ud55c\ub2e4.", "types": ["g_sent"]}, {"code": "[6\uad6d04-06]", "extra": ["g_word", "g_sent"], "genre": null, "scope": "", "standard": "\uae00\uacfc \ub2f4\ud654\uc5d0 \uc4f0\uc778 \ub2e8\uc5b4 \ubc0f \ubb38\uc7a5, \ub744\uc5b4\uc4f0\uae30\ub97c \ubbfc\uac10\ud558\uac8c \uc0b4\ud3b4 \ubc14\ub974\uac8c \uace0\uce58\ub294 \ud0dc\ub3c4\ub97c \uc9c0\ub2cc\ub2e4.", "types": ["g_norm"]}], "lit": [{"code": "[6\uad6d05-01]", "extra": ["l_mind", "l_expr", "l_spot"], "genre": null, "scope": "", "standard": "\uc791\uac00\uc758 \uc758\ub3c4\ub97c \uc0dd\uac01\ud558\uba70 \uc791\ud488\uc744 \uc77d\ub294\ub2e4.", "types": ["l_content"]}, {"code": "[6\uad6d05-02]", "extra": ["l_mind", "l_content"], "genre": null, "scope": "", "standard": "\ube44\uc720\uc801 \ud45c\ud604\uc758 \ud6a8\uacfc\uc5d0 \uc720\uc758\ud558\uc5ec \uc791\ud488\uc744 \uac10\uc0c1\ud55c\ub2e4.", "types": ["l_expr", "l_spot"]}, {"code": "[6\uad6d05-03]", "extra": ["l_expr", "l_spot"], "genre": {"any": ["\uc18c\uc124", "\uadf9", "\ud76c\uace1", "\uc2dc\ub098\ub9ac\uc624", "\ub3d9\ud654", "\uc774\uc57c\uae30", "\uc124\ud654", "\uc6b0\ud654"], "label": "\uc18c\uc124\uc774\ub098 \uadf9"}, "scope": "", "standard": "\uc18c\uc124\uc774\ub098 \uadf9\uc744 \uc77d\uace0 \uc778\ubb3c, \uc0ac\uac74, \ubc30\uacbd\uc744 \ud30c\uc545\ud55c\ub2e4.", "types": ["l_content", "l_mind"]}, {"code": "[6\uad6d05-04]", "extra": ["l_mind", "l_content", "l_expr", "l_spot"], "genre": null, "scope": "", "standard": "\uc778\uc0c1\uc801\uc778 \ubd80\ubd84\uc744 \uc911\uc2ec\uc73c\ub85c \uc791\ud488\uc5d0 \ub300\ud55c \uc758\uacac\uc744 \ub098\ub208\ub2e4.", "types": []}, {"code": "[6\uad6d05-05]", "extra": ["l_mind", "l_content", "l_expr", "l_spot"], "genre": null, "scope": "", "standard": "\uc790\uc2e0\uc758 \uacbd\ud5d8\uc744 \uc2dc, \uc18c\uc124, \uadf9, \uc218\ud544 \ub4f1 \uc801\uc808\ud55c \uac08\ub798\ub85c \ud45c\ud604\ud55c\ub2e4.", "types": []}, {"code": "[6\uad6d05-06]", "extra": ["l_mind", "l_content", "l_expr", "l_spot"], "genre": null, "scope": "", "standard": "\uc791\ud488\uc744 \uc77d\uace0 \uc790\uc2e0\uc758 \uc0b6\uacfc \uc5f0\uad00 \uc9c0\uc5b4 \uc131\ucc30\ud558\ub294 \ud0dc\ub3c4\ub97c \uc9c0\ub2cc\ub2e4.", "types": []}], "read": [{"code": "[6\uad6d02-01]", "extra": ["r_infer", "r_spot", "r_judge", "r_vocab"], "genre": null, "scope": "\uae00\uc758 \uad6c\uc870\uc640 \uc8fc\uc81c\ub97c \ud30c\uc545\ud558\ub294 \uc694\uc18c\ub9cc \ud3c9\uac00\ud569\ub2c8\ub2e4. \uc694\uc57d\ubb38\uc744 \uc4f0\ub294 \uc218\ud589\uc740 \ud3c9\uac00\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.", "standard": "\uae00\uc758 \uad6c\uc870\ub97c \uace0\ub824\ud558\uba70 \uc8fc\uc81c\ub098 \uc8fc\uc7a5\uc744 \ud30c\uc545\ud558\uace0 \uae00 \ub0b4\uc6a9\uc744 \uc694\uc57d\ud55c\ub2e4.", "types": ["r_topic", "r_flow", "r_fact"]}, {"code": "[6\uad6d02-02]", "extra": ["r_topic", "r_fact", "r_flow", "r_judge"], "genre": null, "scope": "", "standard": "\uae00\uc5d0\uc11c \uc0dd\ub7b5\ub41c \ub0b4\uc6a9\uc774\ub098 \ud568\ucd95\ub41c \ud45c\ud604\uc744 \ubb38\ub9e5\uc744 \uace0\ub824\ud558\uc5ec \ucd94\ub860\ud55c\ub2e4.", "types": ["r_infer", "r_spot", "r_vocab"]}, {"code": "[6\uad6d02-03]", "extra": ["r_topic", "r_fact", "r_flow", "r_infer", "r_spot", "r_vocab"], "genre": null, "scope": "", "standard": "\uae00\uc774\ub098 \uc790\ub8cc\ub97c \uc77d\uace0 \ub0b4\uc6a9\uc758 \ud0c0\ub2f9\uc131\uacfc \ud45c\ud604\uc758 \uc801\uc808\uc131\uc744 \ud3c9\uac00\ud55c\ub2e4.", "types": ["r_judge"]}, {"code": "[6\uad6d02-04]", "extra": ["r_topic", "r_fact", "r_flow", "r_infer", "r_spot", "r_judge", "r_vocab"], "genre": null, "scope": "", "standard": "\ubb38\uc81c \uc0c1\ud669\uacfc \uad00\ub828\ub41c \ub2e4\uc591\ud55c \uad00\uc810\uc758 \uae00\uc744 \uc77d\uace0 \uc774\ub97c \ubb38\uc81c \ud574\uacb0\uc5d0 \ud65c\uc6a9\ud55c\ub2e4.", "types": []}, {"code": "[6\uad6d02-05]", "extra": ["r_topic", "r_fact", "r_flow", "r_infer", "r_spot", "r_judge", "r_vocab"], "genre": null, "scope": "", "standard": "\uae0d\uc815\uc801\uc778 \uc77d\uae30 \ub3d9\uae30\ub97c \ud615\uc131\ud558\uace0 \uc801\uadf9\uc801\uc73c\ub85c \uc77d\uae30\uc5d0 \ucc38\uc5ec\ud558\ub294 \ud0dc\ub3c4\ub97c \uae30\ub978\ub2e4.", "types": []}]}, "h1": {"gram": [{"code": "[10\uacf5\uad6d1-04-01]", "extra": ["g_norm", "g_word", "g_sent", "g_phon", "g_disc"], "genre": null, "scope": "", "standard": "\uc5b8\uc5b4 \uacf5\ub3d9\uccb4\uac00 \ub2e4\ubcc0\ud654\ud568\uc5d0 \ub530\ub77c \ub2e4\uc591\ud574\uc9c4 \uc5b8\uc5b4 \uc2e4\ucc9c \uc591\uc0c1\uc744 \ubd84\uc11d\ud558\uace0 \uc5b8\uc5b4 \uc8fc\uccb4\ub85c\uc11c \ucc45\uc784\uac10\uc744 \uac00\uc9c0\uba70 \uad6d\uc5b4\uc0dd\ud65c\uc744 \ud55c\ub2e4.", "types": []}, {"code": "[10\uacf5\uad6d1-04-02]", "extra": ["g_norm", "g_word", "g_sent", "g_disc"], "genre": null, "scope": "", "standard": "\uc74c\uc6b4 \ubcc0\ub3d9\uc744 \ud0d0\uad6c\ud558\uc5ec \ubc1c\uc74c\uacfc \ud45c\uae30\uc5d0 \uc62c\ubc14\ub974\uac8c \uc801\uc6a9\ud55c\ub2e4.", "types": ["g_phon"]}, {"code": "[10\uacf5\uad6d1-04-03]", "extra": ["g_norm", "g_phon", "g_disc"], "genre": null, "scope": "", "standard": "\ub2e4\uc591\ud55c \ubd84\uc57c\uc758 \uae00\uacfc \ub2f4\ud654\uc5d0 \ub098\ud0c0\ub09c \ubb38\ubc95 \uc694\uc18c \ubc0f \uc5b4\ud718\uc758 \ud45c\ud604 \ud6a8\uacfc\ub97c \ud3c9\uac00\ud558\uace0 \uc801\uc808\ud55c \ud45c\ud604\uc744 \uc0dd\uc131\ud55c\ub2e4.", "types": ["g_sent", "g_word"]}, {"code": "[10\uacf5\uad6d2-04-01]", "extra": ["g_norm", "g_word", "g_sent", "g_phon", "g_disc"], "genre": null, "scope": "", "standard": "\uacfc\uac70 \ubc0f \ud604\uc7ac\uc758 \uad6d\uc5b4\uc0dd\ud65c\uc5d0 \ub098\ud0c0\ub098\ub294 \uad6d\uc5b4\uc758 \ubcc0\ud654\ub97c \uc774\ud574\ud558\uace0 \uad6d\uc5b4\ubb38\ud654 \ubc1c\uc804\uc5d0 \ucc38\uc5ec\ud55c\ub2e4.", "types": []}, {"code": "[10\uacf5\uad6d2-04-02]", "extra": ["g_word", "g_sent", "g_phon", "g_disc"], "genre": null, "scope": "", "standard": "\ud55c\uae00 \ub9de\ucda4\ubc95\uc758 \uc6d0\ub9ac\ub97c \uc801\uc6a9\ud558\uc5ec \uad6d\uc5b4\uc0dd\ud65c\uc744 \uc131\ucc30\ud558\uace0 \ubb38\uc81c\ub97c \ud574\uacb0\ud55c\ub2e4.", "types": ["g_norm"]}], "lit": [{"code": "[10\uacf5\uad6d1-05-01]", "extra": ["l_content", "l_expr", "l_spot", "l_apply"], "genre": null, "scope": "", "standard": "\ubb38\ud559 \uc18c\ud1b5\uc758 \ud2b9\uc131\uc744 \uace0\ub824\ud558\uba70 \ubb38\ud559 \uc18c\ud1b5\uc5d0 \ucc38\uc5ec\ud55c\ub2e4.", "types": []}, {"code": "[10\uacf5\uad6d1-05-02]", "extra": ["l_content", "l_apply"], "genre": null, "scope": "", "standard": "\uac08\ub798\uc5d0 \ub530\ub978 \ud615\uc0c1\ud654 \ubc29\ubc95\uc758 \ud2b9\uc131\uc744 \uace0\ub824\ud558\uba70 \uc791\ud488\uc744 \uc218\uc6a9\ud55c\ub2e4.", "types": ["l_expr", "l_spot"]}, {"code": "[10\uacf5\uad6d1-05-03]", "extra": ["l_expr"], "genre": null, "scope": "\uc791\ud488\uc744 \uc218\uc6a9\ud558\ub294 \uc694\uc18c\ub9cc \ud3c9\uac00\ud569\ub2c8\ub2e4. \uc0dd\uc0b0 \uc218\ud589\uc740 \ud3c9\uac00\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.", "standard": "\uc791\ud488 \uad6c\uc131 \uc694\uc18c\uc758 \uc720\uae30\uc801 \uad00\uacc4\uc640 \ub9e5\ub77d\uc5d0 \uc720\uc758\ud558\uc5ec \uc791\ud488\uc744 \uc218\uc6a9\ud558\uace0 \uc0dd\uc0b0\ud55c\ub2e4.", "types": ["l_content", "l_spot", "l_apply"]}, {"code": "[10\uacf5\uad6d2-05-01]", "extra": ["l_content", "l_expr", "l_spot"], "genre": null, "scope": "", "standard": "\ud55c\uad6d \ubb38\ud559\uc0ac\uc758 \ud750\ub984\uc744 \uace0\ub824\ud558\uc5ec \uc791\ud488\uc744 \uc218\uc6a9\ud55c\ub2e4.", "types": ["l_apply"]}, {"code": "[10\uacf5\uad6d2-05-02]", "extra": ["l_expr", "l_spot"], "genre": null, "scope": "", "standard": "\uc8fc\uccb4\uc801\uc778 \uad00\uc810\uc5d0\uc11c \uc791\ud488\uc744 \ud574\uc11d\ud558\uace0 \ud3c9\uac00\ud558\uba70 \ubb38\ud559\uc744 \uc0dd\ud65c\ud654\ud558\ub294 \ud0dc\ub3c4\ub97c \uc9c0\ub2cc\ub2e4.", "types": ["l_apply", "l_content"]}], "read": [{"code": "[10\uacf5\uad6d1-02-01]", "extra": ["r_topic", "r_fact", "r_spot", "r_apply", "r_integrate", "r_vocab"], "genre": null, "scope": "\ub17c\uc99d\uc758 \ud0c0\ub2f9\uc131\uc744 \ud3c9\uac00\ud558\ub294 \uc694\uc18c\ub9cc \ud3c9\uac00\ud569\ub2c8\ub2e4. \uc790\uc2e0\uc758 \uad00\uc810\uc73c\ub85c \ub17c\uc99d\uc744 \uc7ac\uad6c\uc131\ud558\ub294 \uc218\ud589\uc740 \ud3c9\uac00\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.", "standard": "\ub2e4\uc591\ud55c \uae00\uc774\ub098 \uc790\ub8cc\ub97c \uc77d\uc73c\uba70 \ub17c\uc99d\uc758 \ud0c0\ub2f9\uc131\uc744 \ud3c9\uac00\ud558\uace0 \uc790\uc2e0\uc758 \uad00\uc810\uc744 \ubc14\ud0d5\uc73c\ub85c \ub17c\uc99d\uc744 \uc7ac\uad6c\uc131\ud55c\ub2e4.", "types": ["r_judge", "r_flow", "r_infer"]}, {"code": "[10\uacf5\uad6d1-02-02]", "extra": ["r_topic", "r_fact", "r_flow", "r_infer", "r_spot", "r_apply", "r_judge", "r_vocab"], "genre": null, "scope": "\uc8fc\uc81c \ud1b5\ud569\uc801\uc73c\ub85c \uc77d\ub294 \uc694\uc18c\ub9cc \ud3c9\uac00\ud569\ub2c8\ub2e4. \uc790\ub8cc\ub97c \ucc3e\uace0 \uc77d\uc740 \uacb0\uacfc\ub97c \uacf5\uc720\ud558\ub294 \uc218\ud589\uc740 \ud3c9\uac00\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.", "standard": "\uc790\uc2e0\uc758 \uc9c4\ub85c\ub098 \uad00\uc2ec \ubd84\uc57c\uc640 \uad00\ub828\ud55c \ub2e4\uc591\ud55c \uae00\uc774\ub098 \uc790\ub8cc\ub97c \ucc3e\uc544 \uc8fc\uc81c \ud1b5\ud569\uc801\uc73c\ub85c \uc77d\uace0 \uc77d\uc740 \uacb0\uacfc\ub97c \uacf5\uc720\ud55c\ub2e4.", "types": ["r_integrate"]}, {"code": "[10\uacf5\uad6d2-02-01]", "extra": ["r_topic", "r_fact", "r_flow", "r_infer", "r_apply", "r_integrate", "r_vocab"], "genre": null, "scope": "", "standard": "\ubcf5\ud569\uc591\uc2dd\uc73c\ub85c \uad6c\uc131\ub41c \uae00\uc774\ub098 \uc790\ub8cc\uc5d0 \ub0b4\uc7ac\ub41c \ud544\uc790\uc758 \uad00\uc810\uc774\ub098 \uc758\ub3c4, \ud45c\ud604 \ubc29\ubc95\uc744 \ud3c9\uac00\ud558\uba70 \uc77d\ub294\ub2e4.", "types": ["r_judge", "r_spot"]}, {"code": "[10\uacf5\uad6d2-02-02]", "extra": ["r_topic", "r_fact", "r_flow", "r_infer", "r_spot", "r_apply", "r_judge", "r_vocab"], "genre": null, "scope": "", "standard": "\ub3d9\uc77c\ud55c \ud654\uc81c\uc758 \uae00\uc774\ub098 \uc790\ub8cc\ub77c\ub3c4 \uc11c\ub85c \ub2e4\ub978 \uad00\uc810\uacfc \ud615\uc2dd\uc73c\ub85c \ud45c\ud604\ub428\uc744 \uc774\ud574\ud558\uba70 \uc77d\uae30 \ubaa9\uc801\uc744 \uace0\ub824\ud558\uc5ec \uae00\uc774\ub098 \uc790\ub8cc\ub97c \uc8fc\uc81c \ud1b5\ud569\uc801\uc73c\ub85c \uc77d\ub294\ub2e4.", "types": ["r_integrate"]}, {"code": "[10\uacf5\uad6d2-02-03]", "extra": ["r_topic", "r_fact", "r_flow", "r_infer", "r_spot", "r_apply", "r_integrate", "r_judge", "r_vocab"], "genre": null, "scope": "", "standard": "\uc758\ubbf8 \uc788\ub294 \uc0ac\ud68c\uc801 \ub3c5\uc11c \ud65c\ub3d9\uc5d0 \ucc38\uc5ec\ud568\uc73c\ub85c\uc368 \ud0c0\uc778\uacfc \uad50\ub958\ud558\uace0 \ub2e4\uc591\ud55c \uc9c0\uc2dd\uc774\ub098 \uc815\ubcf4, \uc0b6\uc5d0 \ub300\ud55c \uac00\uce58\uad00 \ub4f1\uc744 \uc774\ud574\ud558\ub294 \ud0dc\ub3c4\ub97c \uc9c0\ub2cc\ub2e4.", "types": []}]}, "h23": {"gram": [{"code": "[12\ud654\uc5b801-01]", "extra": ["g_norm", "g_word", "g_sent", "g_phon", "g_disc"], "genre": null, "scope": "", "standard": "\uc5b8\uc5b4\ub97c \uc778\uac04\uc758 \uc0b6\uacfc \uad00\ub828\uc9c0\uc5b4 \uc774\ud574\ud558\uace0, \uad6d\uc5b4\uc640 \uad6d\uc5b4\uc0dd\ud65c\uc774 \uc2dc\uac04\uc758 \ud750\ub984\uc5d0 \ub530\ub77c \ubcc0\ud654\ud558\ub294 \uc591\uc0c1\uc744 \ubd84\uc11d\ud55c\ub2e4.", "types": []}, {"code": "[12\ud654\uc5b801-02]", "extra": ["g_word", "g_sent", "g_disc"], "genre": null, "scope": "", "standard": "\ud45c\uc900 \ubc1c\uc74c\uc744 \uc774\ud574\ud558\uace0 \uc815\ud655\ud558\uac8c \ubc1c\uc74c\ud558\ub294 \uad6d\uc5b4\uc0dd\ud65c\uc744 \ud55c\ub2e4.", "types": ["g_phon", "g_norm"]}, {"code": "[12\ud654\uc5b801-03]", "extra": ["g_norm", "g_phon", "g_disc"], "genre": null, "scope": "", "standard": "\ud488\uc0ac\uc640 \ubb38\uc7a5 \uad6c\uc870\uc5d0 \ub300\ud55c \uc9c0\uc2dd\uc744 \ud65c\uc6a9\ud558\uc5ec \uc5b8\uc5b4 \uc790\ub8cc\ub97c \ubd84\uc11d\ud558\uace0 \uc124\uba85\ud55c\ub2e4.", "types": ["g_word", "g_sent"]}, {"code": "[12\ud654\uc5b801-04]", "extra": ["g_norm", "g_sent", "g_phon", "g_disc"], "genre": null, "scope": "", "standard": "\ub2e8\uc5b4\uc758 \uc9dc\uc784\uacfc \uc758\ubbf8, \ub2e8\uc5b4 \uac04\uc758 \uc758\ubbf8 \uad00\uacc4\ub97c \uc911\uc2ec\uc73c\ub85c \uc5b4\ud718\ub97c \uc774\ud574\ud558\uace0 \ub2f4\ud654\uc5d0 \uc801\uc808\ud788 \ud65c\uc6a9\ud55c\ub2e4.", "types": ["g_word"]}, {"code": "[12\ud654\uc5b801-05]", "extra": ["g_norm", "g_word", "g_phon", "g_disc"], "genre": null, "scope": "", "standard": "\ub2f4\ud654\uc758 \ub9e5\ub77d\uc5d0 \uc801\uc808\ud55c \uc5b4\ud718\uc640 \ubb38\ubc95 \uc694\uc18c\ub97c \uc120\ud0dd\ud558\uc5ec \ud654\uc790\uc758 \ud0dc\ub3c4\ub97c \ub4dc\ub7ec\ub0b8\ub2e4.", "types": ["g_sent"]}, {"code": "[12\ud654\uc5b801-06]", "extra": ["g_norm", "g_word", "g_sent", "g_phon"], "genre": null, "scope": "", "standard": "\ub2f4\ud654\uc758 \uad6c\uc870\ub97c \uace0\ub824\ud558\uc5ec \uc801\uc808\ud55c \uc5b4\ud718\uc640 \ubb38\uc7a5\uc73c\ub85c \uc751\uc9d1\uc131 \uc788\ub294 \ub2f4\ud654\ub97c \uad6c\uc131\ud55c\ub2e4.", "types": ["g_disc"]}, {"code": "[12\ud654\uc5b801-07]", "extra": ["g_norm", "g_word", "g_sent", "g_phon", "g_disc"], "genre": null, "scope": "", "standard": "\ub2e4\uc591\ud55c \uc720\ud615\uc758 \ub2f4\ud654\uc640 \ub9e4\uccb4\ub97c \ub300\uc0c1\uc73c\ub85c \uc5b8\uc5b4\uc758 \uacf5\uacf5\uc131\uc744 \uc774\ud574\ud558\uace0 \ud3c9\uac00\ud55c\ub2e4.", "types": []}], "lit": [{"code": "[12\ubb38\ud55901-01]", "extra": ["l_content", "l_expr", "l_spot", "l_apply"], "genre": null, "scope": "", "standard": "\ubb38\ud559\uc774 \uc778\uac04\uacfc \uc138\uacc4\uc5d0 \ub300\ud55c \uc774\ud574\ub97c \ub3d5\uace0, \uc0b6\uc758 \uc758\ubbf8\ub97c \uae68\ub2eb\uac8c \ud558\uba70, \uc815\uc11c\uc801\u318d\ubbf8\uc801\uc73c\ub85c \uc0b6\uc744 \uace0\uc591\ud568\uc744 \uc774\ud574\ud55c\ub2e4.", "types": []}, {"code": "[12\ubb38\ud55901-02]", "extra": ["l_content", "l_spot"], "genre": null, "scope": "", "standard": "\ubb38\ud559\uc758 \uc5ec\ub7ec \uac08\ub798\ub4e4\uc758 \ud2b9\uc131\uacfc \ubb38\ud559\uc758 \ub9e5\ub77d\uc5d0 \ub300\ud574 \uc774\ud574\ud55c\ub2e4.", "types": ["l_expr", "l_apply"]}, {"code": "[12\ubb38\ud55901-03]", "extra": ["l_content", "l_expr", "l_spot"], "genre": null, "scope": "", "standard": "\uc8fc\uc694 \uc791\ud488\uc744 \uc911\uc2ec\uc73c\ub85c \ud55c\uad6d \ubb38\ud559\uc758 \ubc94\uc704\uc640 \uac08\ub798, \ubcc0\ud654 \uc591\uc0c1\uc744 \ud0d0\uad6c\ud55c\ub2e4.", "types": ["l_apply"]}, {"code": "[12\ubb38\ud55901-04]", "extra": ["l_content", "l_expr", "l_spot"], "genre": null, "scope": "", "standard": "\ud55c\uad6d \ubb38\ud559\uc5d0 \ubc18\uc601\ub41c \uc2dc\ub300 \uc0c1\ud669\uc744 \uc774\ud574\ud558\uace0 \ubb38\ud559\uacfc \uc5ed\uc0ac\uc758 \uc0c1\ud638 \uc601\ud5a5 \uad00\uacc4\ub97c \ud0d0\uad6c\ud55c\ub2e4.", "types": ["l_apply"]}, {"code": "[12\ubb38\ud55901-05]", "extra": ["l_content", "l_expr", "l_spot", "l_apply"], "genre": null, "scope": "", "standard": "\ud55c\uad6d \uc791\ud488\uacfc \uc678\uad6d \uc791\ud488\uc744 \ube44\uad50\ud558\uba70 \uc77d\uace0 \ud55c\uad6d \ubb38\ud559\uc758 \ubcf4\ud3b8\uc131\uacfc \ud2b9\uc218\uc131\uc744 \ud30c\uc545\ud55c\ub2e4.", "types": []}, {"code": "[12\ubb38\ud55901-06]", "extra": ["l_apply"], "genre": null, "scope": "", "standard": "\ubb38\ud559 \uc791\ud488\uc5d0\uc11c\ub294 \ub0b4\uc6a9\uacfc \ud615\uc2dd\uc774 \uae34\ubc00\ud558\uac8c \uc5f0\uad00\ub428\uc744 \uc774\ud574\ud558\uba70 \uc791\ud488\uc744 \uc218\uc6a9\ud55c\ub2e4.", "types": ["l_expr", "l_spot", "l_content"]}, {"code": "[12\ubb38\ud55901-07]", "extra": ["l_expr"], "genre": null, "scope": "", "standard": "\uc791\ud488\uc744 \uacf5\uac10\uc801, \ube44\ud310\uc801, \ucc3d\uc758\uc801\uc73c\ub85c \uac10\uc0c1\ud558\uba70, \ub2e4\uc591\ud55c \ubc29\uc2dd\uc73c\ub85c \uc791\ud488\uc5d0 \ub300\ud574 \ube44\ud3c9\ud55c\ub2e4.", "types": ["l_content", "l_apply", "l_spot"]}, {"code": "[12\ubb38\ud55901-09]", "extra": ["l_content", "l_expr", "l_spot", "l_apply"], "genre": null, "scope": "", "standard": "\ub2e4\uc591\ud55c \ub9e4\uccb4\ub85c \uad6c\ud604\ub41c \uc791\ud488\uc758 \ucc3d\uc758\uc801 \ud45c\ud604 \ubc29\ubc95\uacfc \uc2ec\ubbf8\uc801 \uac00\uce58\ub97c \ubb38\ud559\uc801 \uad00\uc810\uc5d0\uc11c \uc218\uc6a9\ud558\uace0 \uc18c\ud1b5\ud55c\ub2e4.", "types": []}], "read": [{"code": "[12\ub3c5\uc79101-02]", "extra": ["r_fact", "r_flow", "r_infer", "r_spot", "r_apply", "r_integrate", "r_judge", "r_vocab"], "genre": null, "scope": "", "standard": "\ub3c5\uc11c\uc758 \ubaa9\uc801\uacfc \uc791\ubb38\uc758 \ub9e5\ub77d\uc744 \uace0\ub824\ud558\uc5ec \uac00\uce58 \uc788\ub294 \uae00\uc774\ub098 \uc790\ub8cc\ub97c \ud0d0\uc0c9\ud558\uace0 \uc120\ubcc4\ud55c\ub2e4.", "types": []}, {"code": "[12\ub3c5\uc79101-03]", "extra": ["r_flow", "r_apply", "r_integrate", "r_judge"], "genre": null, "scope": "", "standard": "\uae00\uc5d0 \ub4dc\ub7ec\ub09c \uc815\ubcf4\ub97c \ubc14\ud0d5\uc73c\ub85c \uae00\uc758 \ub0b4\uc6a9\uc744 \ud30c\uc545\ud558\uace0 \uae00\uc5d0 \ub4dc\ub7ec\ub098\uc9c0 \uc54a\uc740 \uc815\ubcf4\ub97c \ucd94\ub860\ud558\uba70 \uc77d\ub294\ub2e4.", "types": ["r_fact", "r_infer", "r_spot", "r_vocab"]}, {"code": "[12\ub3c5\uc79101-04]", "extra": ["r_fact", "r_flow", "r_infer", "r_spot", "r_apply", "r_integrate", "r_vocab"], "genre": null, "scope": "", "standard": "\uae00\uc758 \ub0b4\uc6a9\uc774\ub098 \uad00\uc810, \ud45c\ud604 \ubc29\ubc95, \ud544\uc790\uc758 \uc758\ub3c4\ub098 \uc0ac\ud68c\u318d\ubb38\ud654\uc801 \uc774\ub150\uc744 \ud3c9\uac00\ud558\uba70 \uc77d\ub294\ub2e4.", "types": ["r_judge"]}, {"code": "[12\ub3c5\uc79101-05]", "extra": ["r_fact", "r_infer", "r_spot", "r_apply", "r_integrate", "r_judge", "r_vocab"], "genre": null, "scope": "\uae00\uc5d0\uc11c \ub0b4\uc6a9 \uc870\uc9c1 \ubc29\ubc95\uacfc \ud45c\ud604 \uc804\ub7b5\uc744 \ucc3e\ub294 \uc694\uc18c\ub9cc \ud3c9\uac00\ud569\ub2c8\ub2e4. \uadf8\uac83\uc744 \uae00\uc4f0\uae30\uc5d0 \ud65c\uc6a9\ud558\ub294 \uc218\ud589\uc740 \ud3c9\uac00\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.", "standard": "\uae00\uc744 \uc77d\uc73c\uba70 \ub2e4\uc591\ud55c \ub0b4\uc6a9 \uc870\uc9c1 \ubc29\ubc95\uacfc \ud45c\ud604 \uc804\ub7b5\uc744 \ucc3e\uace0 \uc774\ub97c \uae00\uc4f0\uae30\uc5d0 \ud65c\uc6a9\ud55c\ub2e4.", "types": ["r_flow"]}, {"code": "[12\ub3c5\uc79101-07]", "extra": ["r_flow", "r_spot", "r_integrate", "r_judge", "r_vocab"], "genre": null, "scope": "\uc77d\uae30 \uc694\uc18c\ub9cc \ud3c9\uac00\ud569\ub2c8\ub2e4. \uc774 \uc131\ucde8\uae30\uc900\uc774 \ud568\uaed8 \uc694\uad6c\ud558\ub294 \uae00\uc4f0\uae30 \uc218\ud589\uc740 \uc120\ud0dd\ud615 \ubb38\ud56d\uc73c\ub85c \ud3c9\uac00\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.", "standard": "\uc778\uac04\uacfc \uc608\uc220\uc744 \ub2e4\ub8ec \uc778\ubb38\u318d\uc608\uc220 \ubd84\uc57c\uc758 \uae00\uc744 \uc77d\uace0 \uc0b6\uacfc \uc608\uc220\uc5d0 \ub300\ud55c \uc790\uc2e0\uc758 \uc0dd\uac01\uc744 \ub2f4\uc740 \uae00\uc744 \uc4f4\ub2e4.", "types": ["r_fact", "r_infer", "r_apply"]}, {"code": "[12\ub3c5\uc79101-08]", "extra": ["r_flow", "r_spot", "r_integrate", "r_judge", "r_vocab"], "genre": null, "scope": "\uc77d\uae30 \uc694\uc18c\ub9cc \ud3c9\uac00\ud569\ub2c8\ub2e4. \uc774 \uc131\ucde8\uae30\uc900\uc774 \ud568\uaed8 \uc694\uad6c\ud558\ub294 \uae00\uc4f0\uae30 \uc218\ud589\uc740 \uc120\ud0dd\ud615 \ubb38\ud56d\uc73c\ub85c \ud3c9\uac00\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.", "standard": "\uc0ac\ud68c\uc801\u318d\uc5ed\uc0ac\uc801 \ud604\uc0c1\uc774\ub098 \uc7c1\uc810 \ub4f1\uc744 \ub2e4\ub8ec \uc0ac\ud68c\u318d\ubb38\ud654 \ubd84\uc57c\uc758 \uae00\uc744 \uc77d\uace0 \uc0ac\ud68c\u318d\ubb38\ud654\uc801 \uc0ac\uac74\uc774\ub098 \uc5ed\uc0ac\uc801 \uc778\ubb3c\uc5d0 \ub300\ud55c \uad00\uc810\uc744 \ub2f4\uc740 \uae00\uc744 \uc4f4\ub2e4.", "types": ["r_fact", "r_infer", "r_apply"]}, {"code": "[12\ub3c5\uc79101-09]", "extra": ["r_flow", "r_spot", "r_integrate", "r_judge", "r_vocab"], "genre": null, "scope": "\uc77d\uae30 \uc694\uc18c\ub9cc \ud3c9\uac00\ud569\ub2c8\ub2e4. \uc774 \uc131\ucde8\uae30\uc900\uc774 \ud568\uaed8 \uc694\uad6c\ud558\ub294 \uae00\uc4f0\uae30 \uc218\ud589\uc740 \uc120\ud0dd\ud615 \ubb38\ud56d\uc73c\ub85c \ud3c9\uac00\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.", "standard": "\uacfc\ud559\u318d\uae30\uc220\uc758 \uc6d0\ub9ac\ub098 \uc9c0\uc2dd\uc744 \ub2e4\ub8ec \uacfc\ud559\u318d\uae30\uc220 \ubd84\uc57c\uc758 \uae00\uc744 \uc77d\uace0 \uacfc\ud559\u318d\uae30\uc220\uc758 \uac1c\ub150\uc774\ub098 \ud604\uc0c1\uc744 \uc124\uba85\ud558\ub294 \uae00\uc744 \uc4f4\ub2e4.", "types": ["r_fact", "r_infer", "r_apply"]}, {"code": "[12\ub3c5\uc79101-13]", "extra": ["r_fact", "r_flow", "r_infer", "r_spot", "r_apply", "r_judge", "r_vocab"], "genre": null, "scope": "\uc5ec\ub7ec \uae00\uc744 \uc8fc\uc81c \ud1b5\ud569\uc801\uc73c\ub85c \uc77d\ub294 \uc694\uc18c\ub9cc \ud3c9\uac00\ud569\ub2c8\ub2e4. \ud559\uc2b5\uc744 \uc704\ud55c \uae00\uc4f0\uae30 \uc218\ud589\uc740 \ud3c9\uac00\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.", "standard": "\ub2e4\uc591\ud55c \uae00\uc744 \uc8fc\uc81c \ud1b5\ud569\uc801\uc73c\ub85c \uc77d\uace0 \ud559\uc2b5\uc758 \ubaa9\uc801\uacfc \uad50\uacfc\uc758 \ud2b9\uc131\uc744 \uace0\ub824\ud558\uc5ec \ud559\uc2b5\uc744 \uc704\ud55c \uae00\uc744 \uc4f4\ub2e4.", "types": ["r_integrate"]}, {"code": "[12\ub3c5\uc79101-14]", "extra": ["r_fact", "r_flow", "r_infer", "r_spot", "r_apply", "r_integrate", "r_judge", "r_vocab"], "genre": null, "scope": "", "standard": "\ub9e4\uccb4\uc758 \uc720\ud615\uacfc \ud2b9\uc131\uc744 \uace0\ub824\ud558\uba70 \uae00\uc774\ub098 \uc790\ub8cc\ub97c \uc77d\uace0 \uc4f4\ub2e4.", "types": []}]}, "m13": {"gram": [{"code": "[9\uad6d04-01]", "extra": ["g_norm", "g_word", "g_sent", "g_disc"], "genre": null, "scope": "", "standard": "\uad6d\uc5b4\uc758 \uc74c\uc6b4 \uccb4\uacc4\uc640 \ubb38\uc790 \uccb4\uacc4\ub97c \uc774\ud574\ud558\uace0 \uad6d\uc5b4\uc0dd\ud65c\uc5d0 \ud65c\uc6a9\ud55c\ub2e4.", "types": ["g_phon"]}, {"code": "[9\uad6d04-02]", "extra": ["g_norm", "g_sent", "g_phon", "g_disc"], "genre": null, "scope": "", "standard": "\ub2e8\uc5b4\uc758 \uc9dc\uc784\uc744 \ubd84\uc11d\ud558\uc5ec \uc0c8\ub9d0 \ud615\uc131\uc758 \uc6d0\ub9ac\ub97c \uc774\ud574\ud55c\ub2e4.", "types": ["g_word"]}, {"code": "[9\uad6d04-03]", "extra": ["g_norm", "g_sent", "g_phon", "g_disc"], "genre": null, "scope": "", "standard": "\ud488\uc0ac\uc758 \uc885\ub958\uc640 \ud2b9\uc131\uc744 \uc774\ud574\ud558\uace0 \uad6d\uc5b4 \uc790\ub8cc\ub97c \ubd84\uc11d\ud55c\ub2e4.", "types": ["g_word"]}, {"code": "[9\uad6d04-04]", "extra": ["g_norm", "g_word", "g_phon", "g_disc"], "genre": null, "scope": "", "standard": "\ubb38\uc7a5\uc758 \uc9dc\uc784\uc744 \uc774\ud574\ud558\uace0 \ud45c\ud604 \ud6a8\uacfc\ub97c \uace0\ub824\ud558\uc5ec \ubb38\uc7a5\uc744 \uad6c\uc131\ud55c\ub2e4.", "types": ["g_sent"]}, {"code": "[9\uad6d04-05]", "extra": ["g_norm", "g_word", "g_phon", "g_disc"], "genre": null, "scope": "", "standard": "\ud53c\ub3d9 \ud45c\ud604\uacfc \uc778\uc6a9 \ud45c\ud604\uc758 \uc758\ub3c4\uc640 \ud6a8\uacfc\ub97c \ubd84\uc11d\ud558\uace0 \uc0c1\ud669\uc5d0 \ub9de\uac8c \ud65c\uc6a9\ud55c\ub2e4.", "types": ["g_sent"]}, {"code": "[9\uad6d04-06]", "extra": ["g_word", "g_sent", "g_phon", "g_disc"], "genre": null, "scope": "", "standard": "\ud55c\uae00 \ub9de\ucda4\ubc95\uc758 \uae30\ubcf8 \uc6d0\ub9ac\uc640 \ub0b4\uc6a9\uc744 \uc774\ud574\ud558\uace0 \uad6d\uc5b4\uc0dd\ud65c\uc5d0 \uc801\uc6a9\ud55c\ub2e4.", "types": ["g_norm"]}, {"code": "[9\uad6d04-07]", "extra": ["g_norm", "g_word", "g_sent", "g_phon", "g_disc"], "genre": null, "scope": "", "standard": "\uc138\ub300\u22c5\ubd84\uc57c\u22c5\ub9e4\uccb4\uc5d0 \ub530\ub978 \uc5b4\ud718\uc758 \uc591\uc0c1\uacfc \uc4f0\uc784\uc744 \ubd84\uc11d\ud558\uace0 \ub2e4\uc591\ud55c \uc9d1\ub2e8\uacfc \uc0ac\ud68c\uc758 \uc5b8\uc5b4\uc5d0 \uad00\uc6a9\uc801 \ud0dc\ub3c4\ub97c \uc9c0\ub2cc\ub2e4.", "types": []}, {"code": "[9\uad6d04-08]", "extra": ["g_norm", "g_word", "g_sent", "g_phon", "g_disc"], "genre": null, "scope": "", "standard": "\uc790\uc2e0\uacfc \uc8fc\ubcc0\uc758 \ub2e4\uc591\ud55c \uad6d\uc5b4 \uc2e4\ucc9c \uc591\uc0c1\uc744 \ube44\ud310\uc801\uc73c\ub85c \ubd84\uc11d\ud558\uc5ec \uc5b8\uc5b4\uc640 \uc790\uc544 \ubc0f \uc138\uacc4 \uc0ac\uc774\uc758 \uad00\uacc4\ub97c \uc778\uc2dd\ud55c\ub2e4.", "types": []}], "lit": [{"code": "[9\uad6d05-01]", "extra": ["l_mind", "l_content", "l_apply"], "genre": null, "scope": "\uc6b4\uc728, \ube44\uc720, \uc0c1\uc9d5\uc758 \ud6a8\uacfc\ub97c \uac10\uc0c1\ud558\ub294 \uc694\uc18c\ub9cc \ud3c9\uac00\ud569\ub2c8\ub2e4. \ucc3d\uc791 \uc218\ud589\uc740 \ud3c9\uac00\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.", "standard": "\uc6b4\uc728, \ube44\uc720, \uc0c1\uc9d5\uc758 \ud2b9\uc131\uacfc \ud6a8\uacfc\uc5d0 \uc720\uc758\ud558\uba70 \uc791\ud488\uc744 \uac10\uc0c1\ud558\uace0 \ucc3d\uc791\ud55c\ub2e4.", "types": ["l_expr", "l_spot"]}, {"code": "[9\uad6d05-02]", "extra": ["l_expr", "l_spot", "l_apply"], "genre": null, "scope": "", "standard": "\uac08\ub4f1\uc758 \uc9c4\ud589\uacfc \ud574\uacb0 \uacfc\uc815\uc744 \ud30c\uc545\ud558\uba70 \uc791\ud488\uc744 \uac10\uc0c1\ud55c\ub2e4.", "types": ["l_content", "l_mind"]}, {"code": "[9\uad6d05-03]", "extra": ["l_mind", "l_content", "l_expr", "l_spot", "l_apply"], "genre": null, "scope": "", "standard": "\uc778\uac04\uc758 \uc131\uc7a5\uc744 \ub2e4\ub8ec \uc791\ud488\uc744 \uc77d\uc73c\uba70 \ubb38\ud559\uc758 \uac00\uce58\ub97c \ub0b4\uba74\ud654\ud55c\ub2e4.", "types": []}, {"code": "[9\uad6d05-04]", "extra": ["l_content", "l_spot", "l_apply"], "genre": null, "scope": "", "standard": "\ubcf4\ub294 \uc774\ub098 \ub9d0\ud558\ub294 \uc774\uc758 \ud2b9\uc131\uacfc \ud6a8\uacfc\ub97c \ud30c\uc545\ud558\uba70 \uc791\ud488\uc744 \uac10\uc0c1\ud55c\ub2e4.", "types": ["l_expr", "l_mind"]}, {"code": "[9\uad6d05-05]", "extra": ["l_mind", "l_content", "l_expr", "l_spot"], "genre": null, "scope": "", "standard": "\uc791\ud488\uc5d0 \ubc18\uc601\ub41c \uc0ac\ud68c\u22c5\ubb38\ud654\uc801 \uc0c1\ud669\uc744 \uc774\ud574\ud558\uba70 \uc791\ud488\uc744 \uac10\uc0c1\ud55c\ub2e4.", "types": ["l_apply"]}, {"code": "[9\uad6d05-06]", "extra": ["l_mind", "l_content", "l_expr", "l_spot", "l_apply"], "genre": null, "scope": "", "standard": "\uc790\uc2e0\uc758 \uacbd\ud5d8\uc744 \uac1c\uc131\uc801\uc778 \ubc1c\uc0c1\uacfc \ud45c\ud604\uc73c\ub85c \ud615\uc0c1\ud654\ud55c\ub2e4.", "types": []}, {"code": "[9\uad6d05-07]", "extra": ["l_mind", "l_content", "l_expr", "l_spot"], "genre": null, "scope": "", "standard": "\uc5f0\uad00\uc131\uc774 \uc788\ub294 \ub2e4\ub978 \uc791\ud488\ub4e4\uacfc\uc758 \uad00\uacc4\ub97c \ud30c\uc545\ud558\uba70 \uc791\ud488\uc744 \uac10\uc0c1\ud55c\ub2e4.", "types": ["l_apply"]}, {"code": "[9\uad6d05-08]", "extra": ["l_mind", "l_content", "l_expr"], "genre": null, "scope": "", "standard": "\uadfc\uac70\ub97c \ubc14\ud0d5\uc73c\ub85c \uc791\ud488\uc744 \ud574\uc11d\ud558\uace0, \ub2e4\ub978 \ud574\uc11d\ub4e4\uacfc \ube44\uad50\ud558\uc5ec \uc790\uc2e0\uc758 \ud574\uc11d\uc744 \ud3c9\uac00\ud55c\ub2e4.", "types": ["l_apply", "l_spot"]}, {"code": "[9\uad6d05-09]", "extra": ["l_mind", "l_content", "l_expr", "l_spot", "l_apply"], "genre": null, "scope": "", "standard": "\ubb38\ud559\uc744 \ud1b5\ud574 \ud0c0\uc790\ub97c \uc774\ud574\ud558\uace0 \uacf5\ub3d9\uccb4\uc758 \ubb38\uc81c\uc5d0 \ucc38\uc5ec\ud558\ub294 \ud0dc\ub3c4\ub97c \uc9c0\ub2cc\ub2e4.", "types": []}], "read": [{"code": "[9\uad6d02-01]", "extra": ["r_topic", "r_fact", "r_flow", "r_infer", "r_spot", "r_apply", "r_integrate", "r_judge", "r_vocab"], "genre": null, "scope": "", "standard": "\uc77d\uae30\ub294 \uc0ac\ud68c\u22c5\ubb38\ud654\uc801 \ub9e5\ub77d\uc5d0\uc11c \uc758\ubbf8\ub97c \uad6c\uc131\ud558\ub294 \uacfc\uc815\uc784\uc744 \uc774\ud574\ud558\uba70 \uc0ac\ud68c\uc801 \ub3c5\uc11c\uc5d0 \ucc38\uc5ec\ud558\uace0 \uc0ac\ud68c\uc801 \ub3c5\uc11c \ubb38\ud654 \ud615\uc131\uc5d0 \uae30\uc5ec\ud55c\ub2e4.", "types": []}, {"code": "[9\uad6d02-02]", "extra": ["r_infer", "r_spot", "r_apply", "r_integrate", "r_judge", "r_vocab"], "genre": null, "scope": "\uae00\uc758 \uad6c\uc870\uc640 \uc911\uc2ec \ub0b4\uc6a9\uc744 \ud30c\uc545\ud558\ub294 \uc694\uc18c\ub9cc \ud3c9\uac00\ud569\ub2c8\ub2e4. \uc694\uc57d\ubb38\uc744 \uc4f0\ub294 \uc218\ud589\uc740 \ud3c9\uac00\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.", "standard": "\uc77d\uae30 \ubaa9\uc801\uacfc \uae00\uc758 \uad6c\uc870\ub97c \uace0\ub824\ud558\uba70 \uae00\uc744 \ud6a8\uacfc\uc801\uc73c\ub85c \uc694\uc57d\ud55c\ub2e4.", "types": ["r_topic", "r_flow", "r_fact"]}, {"code": "[9\uad6d02-03]", "extra": ["r_topic", "r_fact", "r_flow", "r_apply", "r_integrate", "r_judge"], "genre": null, "scope": "", "standard": "\ub3c5\uc790\uc758 \ubc30\uacbd\uc9c0\uc2dd\uacfc \uae00\uc5d0 \ub098\ud0c0\ub09c \uc815\ubcf4 \ub4f1\uc744 \ud65c\uc6a9\ud558\uc5ec \uae00\uc5d0 \ub4dc\ub7ec\ub098\uc9c0 \uc54a\uc740 \uc758\ub3c4\ub098 \uad00\uc810\uc744 \ucd94\ub860\ud558\uba70 \uc77d\ub294\ub2e4.", "types": ["r_infer", "r_spot", "r_vocab"]}, {"code": "[9\uad6d02-04]", "extra": ["r_topic", "r_fact", "r_flow", "r_infer", "r_spot", "r_apply", "r_integrate", "r_vocab"], "genre": null, "scope": "", "standard": "\ubcf5\ud569\uc591\uc2dd\uc73c\ub85c \uad6c\uc131\ub41c \uae00\uc774\ub098 \uc790\ub8cc\uc758 \ub0b4\uc6a9 \ud0c0\ub2f9\uc131\uacfc \uc2e0\ub8b0\uc131, \ud45c\ud604 \ubc29\ubc95\uc758 \uc801\uc808\uc131\uc744 \ud3c9\uac00\ud558\uba70 \uc77d\ub294\ub2e4.", "types": ["r_judge"]}, {"code": "[9\uad6d02-05]", "extra": ["r_topic", "r_fact", "r_infer", "r_spot", "r_apply", "r_integrate", "r_vocab"], "genre": null, "scope": "", "standard": "\uae00\uc5d0 \uc0ac\uc6a9\ub41c \ub2e4\uc591\ud55c \uc124\uba85 \ubc29\ubc95\uacfc \ub17c\uc99d \ubc29\ubc95\uc744 \ud30c\uc545\ud558\uace0, \uadf8 \ud0c0\ub2f9\uc131\uc744 \ud3c9\uac00\ud558\uba70 \uc77d\ub294\ub2e4.", "types": ["r_flow", "r_judge"]}, {"code": "[9\uad6d02-06]", "extra": ["r_topic", "r_fact", "r_flow", "r_infer", "r_spot", "r_apply", "r_judge", "r_vocab"], "genre": null, "scope": "", "standard": "\ub3d9\uc77c\ud55c \ud654\uc81c\ub97c \ub2e4\ub8ec \uc5ec\ub7ec \uae00\uc774\ub098 \uc790\ub8cc\ub97c \uc8fc\uc81c \ud1b5\ud569\uc801\uc73c\ub85c \uc77d\ub294\ub2e4.", "types": ["r_integrate"]}, {"code": "[9\uad6d02-07]", "extra": ["r_topic", "r_fact", "r_flow", "r_infer", "r_spot", "r_apply", "r_integrate", "r_judge", "r_vocab"], "genre": null, "scope": "", "standard": "\uc9c4\ub85c\ub098 \uad00\uc2ec \ubd84\uc57c\uc5d0 \ub300\ud55c \ub2e4\uc591\ud55c \ucc45\uc774\ub098 \uc790\ub8cc\ub97c \uc2a4\uc2a4\ub85c \ucc3e\uc544 \uc77d\ub294\ub2e4.", "types": []}, {"code": "[9\uad6d02-08]", "extra": ["r_topic", "r_fact", "r_flow", "r_infer", "r_spot", "r_apply", "r_integrate", "r_judge", "r_vocab"], "genre": null, "scope": "", "standard": "\uc790\uc2e0\uc758 \ub3c5\uc11c \uc0c1\ud669\uacfc \uc218\uc900\uc5d0 \ub9de\ub294 \uae00\uc744 \uc120\uc815\ud558\uace0 \uc77d\uae30 \uacfc\uc815\uc744 \uc810\uac80\u22c5\uc870\uc815\ud558\uba70 \uc77d\ub294\ub2e4.", "types": []}]}};
+const MODES = {"full": {"name": "\uc804\uccb4 \uc751\uc2dc (16\uc870\uac74)", "note": "AI \uc751\uc2dc \uc870\uac74 16\uac1c\uac00 \ud480\uc5b4 \uc815\ub2f5 \ube44\uc728\uacfc \uc624\ub2f5 \ubd84\ud3ec\ub97c \ub0c5\ub2c8\ub2e4. \uc138\ud2b8 \ud558\ub098\uc5d0 2~4\ubd84\uc774 \ub354 \uac78\ub9bd\ub2c8\ub2e4. \ud559\uc0dd \uc815\ub2f5\ub960\uc774 \uc544\ub2d9\ub2c8\ub2e4."}, "off": {"name": "\uc0dd\ub7b5", "note": "AI \uc751\uc2dc\ub97c \ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4. \uc815\ub2f5 \ud655\uc778\ub3c4 \ub418\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4. \ubaa9\ub85d\uc5d0\uc11c \ub098\uc911\uc5d0 \ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4."}, "solve": {"name": "\ud480\uc774 \ud655\uc778 (\uc0c1\uc704 3\uc870\uac74)", "note": "\uc0c1\uc704 3\uc870\uac74\ub9cc \ud480\uc5b4 \uc815\ub2f5 \uc624\ub958\uac00 \uc5c6\ub294\uc9c0\ub9cc \ubd05\ub2c8\ub2e4. \uc815\ub2f5 \ube44\uc728\uc740 \ub0b4\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4."}};
+const BADGES = {};
+const DATA = new Set(["[10\uacf5\uad6d1-04-02]|g_phon", "[10\uacf5\uad6d2-04-02]|g_norm", "[12\ud654\uc5b801-02]|g_phon", "[12\ud654\uc5b801-03]|g_sent", "[2\uad6d04-01]|g_norm", "[2\uad6d04-02]|g_norm", "[4\uad6d04-02]|g_word", "[4\uad6d04-04]|g_disc", "[4\uad6d04-04]|g_word", "[6\uad6d04-03]|g_word", "[9\uad6d04-01]|g_phon", "[9\uad6d04-02]|g_word", "[9\uad6d04-03]|g_word", "[9\uad6d04-04]|g_sent", "[9\uad6d04-06]|g_norm"]);   /* 자료 문항으로 만드는 (성취기준|유형) */
+const BAND_INFO = {"e12": {"guide": "\ubb38\uc7a5\uc740 \uc9e7\uac8c(\ud55c \ubb38\uc7a5 10\uc5b4\uc808 \uc548\ud30e) \uc4f0\uace0, \uc77c\uc0c1\uc5d0\uc11c \uc4f0\ub294 \uc26c\uc6b4 \ub0b1\ub9d0\ub9cc \uc4f4\ub2e4. \ud55c\uc790\uc5b4\uc640 \ucd94\uc0c1\uc801\uc778 \ub0b1\ub9d0\uc744 \ud53c\ud55c\ub2e4. \ud55c \ubb38\ub2e8\uc5d0 \uc0dd\uac01 \ud558\ub098\ub9cc \ub2f4\ub294\ub2e4.", "lit_len": [30, 350], "n_choices": 4, "name": "\ucd081~2", "read_len": [120, 280], "school": "\ucd08", "tone": "\ucd08"}, "e34": {"guide": "\ubb38\uc7a5\uc740 \uae38\uc9c0 \uc54a\uac8c(\ud55c \ubb38\uc7a5 15\uc5b4\uc808 \uc548\ud30e) \uc4f0\uace0, \ucd08\ub4f1 3~4\ud559\ub144 \uad50\uacfc\uc11c \uc218\uc900\uc758 \ub0b1\ub9d0\uc744 \uc4f4\ub2e4. \uc5b4\ub824\uc6b4 \ub0b1\ub9d0\uc740 \uae00 \uc548\uc5d0\uc11c \ud480\uc5b4 \uc124\uba85\ud55c\ub2e4.", "lit_len": [40, 600], "n_choices": 4, "name": "\ucd083~4", "read_len": [250, 480], "school": "\ucd08", "tone": "\ucd08"}, "e56": {"guide": "\ucd08\ub4f1 5~6\ud559\ub144 \uad50\uacfc\uc11c \uc218\uc900\uc73c\ub85c \uc4f4\ub2e4. \ubb38\ub2e8\ub9c8\ub2e4 \uc911\uc2ec \ubb38\uc7a5\uc774 \ub4dc\ub7ec\ub098\uac8c \ud558\uace0, \ub0af\uc120 \uac1c\ub150\uc740 \uc608\ub97c \ub4e4\uc5b4 \uc124\uba85\ud55c\ub2e4.", "lit_len": [60, 900], "n_choices": 4, "name": "\ucd085~6", "read_len": [400, 750], "school": "\ucd08", "tone": "\ucd08"}, "h1": {"guide": "\uace0\ub4f1\ud559\uad50 1\ud559\ub144 \uc804\uad6d\uc5f0\ud569\ud559\ub825\ud3c9\uac00 \uc218\uc900\uc73c\ub85c \uc4f4\ub2e4. \uc815\ubcf4 \ubc00\ub3c4\ub97c \ub192\uc774\uace0 \uac1c\ub150 \uc0ac\uc774\uc758 \uad00\uacc4(\ube44\uad50, \uc778\uacfc, \uc870\uac74)\ub97c \ubb38\uc7a5\uc73c\ub85c \ud480\uc5b4 \uc4f4\ub2e4.", "lit_len": [100, 1900], "n_choices": 5, "name": "\uace01", "read_len": [900, 1500], "school": "\uace0", "tone": "\uc911\uace0"}, "h23": {"guide": "\ub300\ud559\uc218\ud559\ub2a5\ub825\uc2dc\ud5d8 \uad6d\uc5b4 \uc601\uc5ed \uc218\uc900\uc73c\ub85c \uc4f4\ub2e4. \ud559\uc220\uc801\uc774\uace0 \ubc00\ub3c4 \uc788\ub294 \ubb38\uccb4\ub97c \uc9c0\ud0a4\uace0, \ud575\uc2ec \uac1c\ub150 \ub458 \uc774\uc0c1\uc774 \uc11c\ub85c \uc5bd\ud788\ub294 \uad6c\uc870\ub85c \uc4f4\ub2e4.", "lit_len": [100, 2400], "n_choices": 5, "name": "\uace02~3", "read_len": [1300, 2100], "school": "\uace0", "tone": "\uc911\uace0"}, "m13": {"guide": "\uc911\ud559\uad50 \uad50\uacfc\uc11c \uc218\uc900\uc73c\ub85c \uc4f4\ub2e4. \uac1c\ub150\uc5b4\ub97c \uc4f0\ub418 \uc815\uc758\uc640 \uc608\uc2dc\ub97c \ud568\uaed8 \uc8fc\uace0, \ubb38\ub2e8 \uc0ac\uc774\uc758 \ub17c\ub9ac \uad00\uacc4\uac00 \ubd84\uba85\ud558\uac8c \ud55c\ub2e4.", "lit_len": [80, 1400], "n_choices": 5, "name": "\uc9111~3", "read_len": [600, 1100], "school": "\uc911", "tone": "\uc911\uace0"}};
+const AREA_INFO = {"gram": {"genre": null, "name": "\ubb38\ubc95", "note": "\uc9c0\ubb38 \uc5c6\uc774 \ubb38\ud56d \ud558\ub098\uc529 \ub9cc\ub4ed\ub2c8\ub2e4."}, "lit": {"genre": "lit", "name": "\ubb38\ud559", "note": "\uc791\ud488 \uc6d0\ubb38\uc740 \uace0\uce58\uc9c0 \uc54a\uace0 \uadf8\ub300\ub85c \uc2e3\uc2b5\ub2c8\ub2e4."}, "read": {"genre": "info", "name": "\ub3c5\uc11c", "note": "\uc6d0\uc804\uc758 \ub0b4\uc6a9\uc744 \ubc14\ud0d5\uc73c\ub85c \uc9c0\ubb38\uc744 \uc0c8\ub85c \uc501\ub2c8\ub2e4."}};
+const RULES = {"e12": {"gram": null, "lit": "textbook", "read": "textbook"}, "e34": {"gram": null, "lit": "textbook", "read": "textbook"}, "e56": {"gram": null, "lit": "textbook", "read": "textbook"}, "h1": {"gram": null, "lit": "verbatim", "read": "rewrite"}, "h23": {"gram": null, "lit": "verbatim", "read": "rewrite"}, "m13": {"gram": null, "lit": "verbatim", "read": "rewrite"}};            /* 학년군·영역별 지문 마련 방식 */
+const RULE_NOTES = {"rewrite": "\uc6d0\uc804\uc758 \ub0b4\uc6a9\uc744 \ubc14\ud0d5\uc73c\ub85c \uc9c0\ubb38\uc744 \uc0c8\ub85c \uc501\ub2c8\ub2e4.", "textbook": "\uad6d\uc815 \uad50\uacfc\uc11c\uc5d0 \uc2e4\ub9b0 \uae00\uc744 \uadf8\ub300\ub85c \uc2e3\uc2b5\ub2c8\ub2e4.", "verbatim": "\uc791\ud488 \uc6d0\ubb38\uc740 \uace0\uce58\uc9c0 \uc54a\uace0 \uadf8\ub300\ub85c \uc2e3\uc2b5\ub2c8\ub2e4."};
+let HAVE = {"[12\ud654\uc5b801-03]|g_sent": 1, "[2\uad6d04-01]|g_norm": 1, "[4\uad6d04-04]|g_disc": 1, "[9\uad6d04-02]|g_word": 1, "[9\uad6d04-03]|g_word": 1, "[9\uad6d04-04]|g_sent": 1};
+let RECOMMENDED = [];
+let BAND = "m13";
+let AREA = "gram";
+
+/* 마지막에 고른 대상을 기억해 둔다. 저장소가 막혀 있어도 화면은 떠야 한다. */
+function remember(k, v) { try { localStorage.setItem('aikor_' + k, v); } catch (e) {} }
+function recall(k) { try { return localStorage.getItem('aikor_' + k); } catch (e) { return null; } }
+
+/* ── ① 대상 ── */
+function setBand(b, keep) {
+  BAND = b; remember('band', b);
+  document.getElementById('f-band').value = b;
+  document.querySelectorAll('#bandseg .segbtn')
+    .forEach(x => x.classList.toggle('on', x.dataset.band === b));
+  document.querySelectorAll('.carry-band').forEach(i => { i.value = b; });
+  document.getElementById('nchoice').value = BAND_INFO[b].n_choices;
+  if (AREA) { sourceRule(); filterSources(); }
+  renderStandards();
+  if (!keep) loadSource();
+}
+
+/* 지문을 마련하는 방식에 따라 2단계의 안내와 탭을 바꾼다.
+   초등은 교과서 지문만 쓰므로 새 지문 등록을 숨긴다. */
+function rule() { return ((RULES[BAND] || {})[AREA]) || null; }
+
+function sourceRule() {
+  const r = rule(), tb = r === 'textbook';
+  const genre = AREA_INFO[AREA].genre;
+  document.getElementById('areanote').textContent = r ? RULE_NOTES[r] : AREA_INFO[AREA].note;
+  document.getElementById('s2sub').textContent = !genre ? '이 영역은 지문이 필요 없습니다'
+    : tb ? '교과서에 실린 글 가운데 고릅니다'
+    : (genre === 'lit' ? '어느 작품으로 만들지 고릅니다' : '어느 글을 바탕으로 지문을 쓸지 고릅니다');
+  document.querySelector('#srcui .segbtn[data-mode=new]').hidden = tb;
+  document.getElementById('tbnote').hidden = !tb;
+  if (tb && !document.querySelector('#srcui .mode[data-mode=new]').hidden) srcMode('exist');
+}
+
+function setArea(a, keep) {
+  AREA = a; remember('area', a);
+  document.getElementById('f-area').value = a;
+  document.querySelectorAll('#areaseg .segbtn')
+    .forEach(x => x.classList.toggle('on', x.dataset.area === a));
+  document.querySelectorAll('.carry-area').forEach(i => { i.value = a; });
+  document.getElementById('areanote').textContent = AREA_INFO[a].note;
+  const genre = AREA_INFO[a].genre;
+  document.getElementById('nosrc').hidden = !!genre;
+  document.getElementById('srcui').hidden = !genre;
+  document.getElementById('s2sub').textContent = genre
+    ? (genre === 'lit' ? '어느 작품으로 만들지 고릅니다' : '어느 글을 바탕으로 지문을 쓸지 고릅니다')
+    : '이 영역은 지문이 필요 없습니다';
+  document.getElementById('genrenote').textContent = genre === 'lit'
+    ? '문학 작품은 원문 그대로 지문이 됩니다. 실을 부분만 올리십시오. 저작권이 끝났거나 이용 허락을 받은 작품만 쓸 수 있습니다.'
+    : '정보 글은 내용의 재료로만 쓰고, 지문은 학년 수준에 맞춰 새로 씁니다.';
+  document.getElementById('countlbl').textContent =
+    genre ? '세트 수' : '성취기준·유형마다 문항 수';
+  sourceRule();
+  filterSources();
+  renderStandards();
+  if (!keep) loadSource();
+}
+
+/* 영역에 맞는 갈래의 지문만 고를 수 있게 한다.
+   초등은 그 학년군의 교과서 지문만 보인다. 교과서의 이야기는 읽기 성취기준
+   (인물의 마음 짐작 등)으로도 평가하므로 독서 영역에서는 갈래를 가리지 않는다. */
+function filterSources() {
+  const genre = AREA_INFO[AREA].genre;
+  const tb = rule() === 'textbook';
+  const sel = document.getElementById('srcsel');
+  let n = 0;
+  [...sel.options].forEach(o => {
+    if (!o.value) return;
+    const isTb = o.dataset.kind === 'textbook';
+    const ok = tb
+      ? (isTb && o.dataset.band === BAND && (AREA === 'read' || o.dataset.genre === 'lit'))
+      : (!isTb && o.dataset.genre === genre);
+    o.hidden = !ok; o.disabled = !ok;
+    if (ok) n++;
+  });
+  const cur = sel.options[sel.selectedIndex];
+  if (cur && cur.value && cur.disabled) sel.value = '';
+  document.getElementById('nosrcmsg').hidden = !genre || n > 0 || tb;
+  document.getElementById('notbmsg').hidden = !tb || n > 0;
+}
+
+/* ── ② 지문 ── */
+function srcMode(m) {
+  document.querySelectorAll('#srcui .segbtn[data-mode]')
+    .forEach(b => b.classList.toggle('on', b.dataset.mode === m));
+  document.querySelectorAll('#srcui .mode')
+    .forEach(d => { d.hidden = d.dataset.mode !== m; });
+  if (m === 'new') step(3, false); else loadSource();
+  syncPlan();
+}
+
+function newTab(src) {
+  document.querySelectorAll('.seg.sub .segbtn')
+    .forEach(b => b.classList.toggle('on', b.dataset.src === src));
+  document.querySelectorAll('#srcui .nf')
+    .forEach(f => { f.hidden = f.dataset.src !== src; });
+}
+
+function step(n, on) {
+  document.getElementById('step' + n).classList.toggle('off', !on);
+}
+
+let SRCPANE = 'rec';        /* 패널을 다시 그려도 보던 탭을 유지한다 */
+
+function srcTab(btn, pane) {
+  SRCPANE = pane;
+  const box = btn.closest('.srcbox');
+  box.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b === btn));
+  box.querySelectorAll('.tabpane').forEach(p => {
+    p.hidden = p.dataset.pane !== pane;
+  });
+}
+
+function restorePane() {
+  const box = document.querySelector('#srcdetail .srcbox');
+  if (!box) return;
+  const btn = [...box.querySelectorAll('.tab')]
+    .find(b => (b.getAttribute('onclick') || '').includes(`'${SRCPANE}'`));
+  if (btn) srcTab(btn, SRCPANE);
+}
+
+async function loadSource() {
+  const sid = document.getElementById('srcsel').value;
+  const card = document.getElementById('srccard');
+  const box = document.getElementById('srcdetail');
+  RECOMMENDED = [];
+  if (!AREA_INFO[AREA].genre || !sid) {
+    card.innerHTML = '';
+    box.innerHTML = '<p class="muted sm">' + (AREA_INFO[AREA].genre
+      ? '먼저 지문을 고르십시오.' : '문법은 지문 분석이 없습니다.') + '</p>';
+    step(3, false); renderRec(); syncPlan();
+    return;
+  }
+  box.innerHTML = '<p class="muted sm">지문 정보를 불러오는 중…</p>';
+  try {
+    const r = await fetch('/sources/' + sid + '?band=' + BAND,
+                          { headers: { 'X-Requested-With': 'fetch' } });
+    box.innerHTML = await r.text();
+  } catch (e) {
+    box.innerHTML = '<p class="muted sm">불러오지 못했습니다: ' + e + '</p>';
+  }
+  /* 지문 요약은 2단계로 끌어올린다. 고른 것이 무엇인지 바로 보이게 */
+  const meta = box.querySelector('.srcsum');
+  card.innerHTML = meta ? meta.outerHTML : '';
+  if (meta) meta.remove();
+  const tbl = box.querySelector('.rec');
+  RECOMMENDED = tbl ? (tbl.dataset.rec || '').split(',').filter(Boolean) : [];
+  restorePane();
+  step(3, true);
+  renderRec(); syncPlan();
+}
+
+/* 긴 작업(분석). 그냥 제출하면 페이지가 다시 로드되어 고른 것이 다 사라진다.
+   여기서 넣고, 진행을 적고, 끝나면 그 부분만 다시 그린다. */
+async function srcPost(form) {
+  const note = form.parentElement.querySelector('.srcwait');
+  const btn = form.querySelector('button');
+  try {
+    const r = await fetch(form.action, {
+      method: 'POST', headers: { 'X-Requested-With': 'fetch' },
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const j = await r.json();
+    btn.disabled = true;
+    pollJobs();
+    await watchJob(j.job_id, note);
+    btn.disabled = false;
+  } catch (e) {
+    form.onsubmit = null;
+    form.submit();
+  }
+}
+
+async function srcCheck(form) {
+  const r = await fetch(form.action, {
+    method: 'POST', body: new FormData(form),
+    headers: { 'X-Requested-With': 'fetch' },
+  });
+  if (!r.ok) return;
+  const opt = document.getElementById('srcsel').selectedOptions[0];
+  if (opt) opt.textContent = form.querySelector('[name=on]').value === '1'
+    ? opt.textContent.replace(' · 대조 전', '')
+    : opt.textContent.trimEnd() + ' · 대조 전';
+  loadSource();
+}
+
+async function watchJob(id, note) {
+  for (;;) {
+    await new Promise(r => setTimeout(r, 2000));
+    let j;
+    try { j = await (await fetch('/api/jobs/' + id)).json(); }
+    catch (e) { continue; }
+    const pr = j.progress || {};
+    if (note) {
+      note.textContent = j.status === 'queued' ? '대기 중…'
+        : (pr.stage || '진행 중') + '…';
+    }
+    if (j.status === 'done') {
+      if (note) note.textContent = '';
+      await loadSource();
+      return;
+    }
+    if (j.status === 'failed' || j.status === 'canceled') {
+      if (note) note.textContent = j.status === 'canceled' ? '취소했습니다'
+        : '실패했습니다. 작업 현황에서 원인을 보십시오';
+      return;
+    }
+  }
+}
+
+/* 새 지문 등록. 손본 본문을 넘기고 분석이 끝날 때까지 이 화면에 머문다. */
+async function registerSource(form) {
+  const note = document.getElementById('regwait');
+  const btn = form.querySelector('button[type=submit]');
+  let j;
+  try {
+    const r = await fetch(form.action, {
+      method: 'POST', headers: { 'X-Requested-With': 'fetch' },
+      body: new FormData(form),
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    j = await r.json();
+  } catch (e) {
+    form.onsubmit = null; form.submit(); return;
+  }
+  btn.disabled = true;
+  form.querySelector('textarea').readOnly = true;
+  note.textContent = '등록했습니다. 분석 중…';
+  pollJobs();
+
+  for (;;) {
+    await new Promise(r => setTimeout(r, 2000));
+    let s;
+    try { s = await (await fetch('/api/jobs/' + j.job_id)).json(); }
+    catch (e) { continue; }
+    const pr = s.progress || {};
+    if (s.status === 'queued') note.textContent = '대기 중…';
+    else if (s.status === 'running') note.textContent = (pr.stage || '분석') + '…';
+    else if (s.status === 'done') {
+      /* 분석이 끝났으니 방금 만든 지문을 물고 기존 지문 쪽으로 넘긴다 */
+      location.href = '/generate?source_id=' + (s.result || {}).source_id +
+                      '&band=' + BAND + '&area=' + AREA;
+      return;
+    } else {
+      note.textContent = '실패했습니다. 작업 현황에서 원인을 보십시오';
+      btn.disabled = false;
+      form.querySelector('textarea').readOnly = false;
+      return;
+    }
+  }
+}
+
+/* ── ④ 성취기준 · 유형 ── */
+function esc(s) {
+  return String(s).replace(/[&<>"]/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+}
+
+function card(code, tid, extra) {
+  const n = HAVE[code + '|' + tid] || 0;
+  return `<label class="tcard${extra ? ' extra' : ''}" data-tid="${tid}">` +
+    `<input type="checkbox" name="picks" value="${esc(code)}|${tid}" ` +
+    `form="genform" class="tchk" onchange="syncPlan()">` +
+    `<span>${esc(TYPES[tid].name)}</span>` +
+    (DATA.has(code + '|' + tid) ? `<span class="thave" title="정답을 자료로 정하는 문항">자료</span>` : '') +
+    (n ? `<span class="thave" title="이미 만든 문항 수">${n}</span>` : '') +
+    `</label>`;
+}
+
+/* 학년군과 영역이 바뀌면 성취기준 목록을 새로 그린다. 고른 것은 지운다.
+   다른 학년군의 성취기준이 구성에 남아 있으면 안 된다. */
+function renderStandards() {
+  const box = document.getElementById('stdlist');
+  const secs = ((CATALOG[BAND] || {})[AREA]) || [];
+  if (!secs.length) {
+    box.innerHTML = '<p class="muted sm">이 학년군·영역의 성취기준 자료가 없습니다.</p>';
+    syncPlan(); return;
+  }
+  box.innerHTML = secs.map(s => {
+    const main = s.types.map(t => card(s.code, t, false)).join('');
+    const more = s.extra.map(t => card(s.code, t, true)).join('');
+    return `<div class="std${s.types.length ? '' : ' none'}" data-code="${esc(s.code)}">` +
+      `<div class="std-h"><span class="std-c">${esc(s.code)}</span>` +
+      `<span class="std-t">${esc(s.standard)}</span>` +
+      (s.types.concat(s.extra).some(t => DATA.has(s.code + '|' + t)) ? '<span class="st data">자료 문항</span>' : '') +
+      `</div>` +
+      (s.scope ? `<div class="std-note">평가 범위: ${esc(s.scope)}</div>` : '') +
+      (s.genre ? `<div class="std-note">대상 갈래: ${esc(s.genre.label)}</div>` : '') +
+      (BADGES[s.code] ? `<div class="std-note">기출 분석: ${esc(BADGES[s.code].label)}` +
+        (BADGES[s.code].text ? ' · ' + esc(BADGES[s.code].text) : '') + `</div>` : '') +
+      `<div class="std-types">${main}` +
+      (s.types.length ? '' : '<span class="muted sm">선택형 문항으로 재기 어려운 성취기준입니다(태도·수행 중심).</span>') +
+      (more ? `<button type="button" class="lnk" onclick="showExtra(this)">다른 유형</button>` +
+              `<span class="std-types" hidden style="margin:0">${more}</span>` : '') +
+      `</div></div>`;
+  }).join('');
+  renderRec(); syncPlan();
+}
+
+function showExtra(btn) {
+  btn.nextElementSibling.hidden = false;
+  btn.remove();
+}
+
+function renderRec() {
+  const has = RECOMMENDED.length > 0;
+  document.querySelectorAll('#stdlist .tcard').forEach(c => {
+    c.classList.toggle('rec', RECOMMENDED.includes(c.dataset.tid));
+  });
+  document.getElementById('reclg').hidden = !has;
+}
+
+function picks() {
+  return [...document.querySelectorAll('#stdlist .tchk:checked')].map(c => {
+    const [code, tid] = c.value.split('|');
+    return { code, tid };
+  });
+}
+
+function clearPicks() {
+  document.querySelectorAll('#stdlist .tchk').forEach(c => { c.checked = false; });
+  syncPlan();
+}
+
+const MAX_ITEMS = 6;
+
+function syncPlan() {
+  const got = picks();
+  const gram = !AREA_INFO[AREA].genre;
+  const n = parseInt(document.querySelector('[name=count]').value || '1', 10);
+  const mode = document.getElementById('mmode').value;
+  const sid = document.getElementById('srcsel').value;
+  const exist = !document.querySelector('#srcui .mode[data-mode=exist]').hidden;
+
+  document.getElementById('pickbox').hidden = !got.length;
+  document.getElementById('picklist').innerHTML = got.map(p =>
+    `<li><span class="mono">${esc(p.code)}</span> ${esc(TYPES[p.tid].name)}</li>`).join('');
+  document.getElementById('modenote').textContent = (MODES[mode] || {}).note || '';
+
+  /* 성취기준이 정한 갈래와 고른 작품의 갈래가 어긋나면 알린다(막지 않는다) */
+  const opt = document.getElementById('srcsel').selectedOptions[0];
+  const form = (AREA === 'lit' && opt && opt.dataset.form) || '';
+  const secs = ((CATALOG[BAND] || {})[AREA]) || [];
+  const warns = [];
+  new Set(got.map(p => p.code)).forEach(code => {
+    const s = secs.find(x => x.code === code);
+    if (s && s.genre && form && !s.genre.any.some(w => form.includes(w)))
+      warns.push(`${code} 은 ${s.genre.label}을 대상으로 하는 성취기준입니다. ` +
+                 `고른 작품은 '${form}' 로 분석되었습니다. 갈래가 맞는지 확인하십시오.`);
+  });
+  const wbox = document.getElementById('pickwarn');
+  wbox.hidden = !warns.length;
+  wbox.innerHTML = warns.map(w => `<li>${esc(w)}</li>`).join('');
+
+  let why = '';
+  if (!got.length) why = '성취기준 아래에서 유형을 하나 이상 고르십시오';
+  else if (!gram && got.length > MAX_ITEMS) why = `한 세트는 ${MAX_ITEMS}문항까지입니다`;
+  else if (!gram && (!sid || !exist)) why = '2단계에서 지문을 고르십시오';
+  document.getElementById('gobtn').disabled = !!why;
+
+  /* 예상 시간(분). 2026-10-16 측정: 자료 문항 10~30초, 일반 생성 문법 문항 약 3분,
+     독서·문학 세트는 응시 방식에 따라 다르다. 두 개씩 동시에 만든다 */
+  const perSet = { off: 1.5, solve: 2.5, full: 5 }[mode] || 2.5;
+  const perGen = { off: 2.5, solve: 3, full: 5 }[mode] || 3;
+  const nData = got.filter(p => DATA.has(p.code + '|' + p.tid)).length;
+  const par = n > 1 || got.length > 1 ? 2 : 1;
+  const mins = gram ? (nData * 0.4 + (got.length - nData) * perGen) * n / par : n * perSet / Math.min(par, n);
+  let text = why;
+  if (!why) {
+    text = gram
+      ? `문법 ${got.length * n}문항 · 예상 약 ${Math.max(1, Math.round(mins))}분`
+      : `${got.length}문항짜리 세트 ${n}개 = 총 ${got.length * n}문항 · 예상 약 ${Math.max(1, Math.round(mins))}분`;
+  }
+  document.getElementById('estimate').textContent = text;
+  document.getElementById('sum-target').textContent =
+    (BAND_INFO[BAND] || {}).name + ' · ' + (AREA_INFO[AREA] || {}).name;
+  document.getElementById('sum-picks').textContent = got.length
+    ? (gram ? `${got.length}쌍 × ${n}문항 = ${got.length * n}문항` : `${got.length}문항 × 세트 ${n}개`) : '고른 것 없음';
+  document.getElementById('sum-data').textContent = got.length
+    ? `${nData * n}문항 · 일반 생성 ${(got.length - nData) * n}` : '-';
+  const go = document.getElementById('gobtn');
+  go.textContent = got.length && !why ? `${got.length * n}문항 생성 시작` : '생성 시작';
+}
+
+/* 작업이 끝나면 보유 수를 새로 고칠 필요가 있지만, 고른 것을 지우지 않으려고
+   화면은 그대로 둔다. 다음에 화면을 열 때 반영된다. */
+function onJobsChanged() {}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (!BAND_INFO[BAND]) BAND = recall('band');
+  if (!BAND_INFO[BAND]) BAND = 'h23';
+  if (!AREA_INFO[AREA]) AREA = recall('area');
+  if (!AREA_INFO[AREA]) AREA = 'read';
+  /* 주소에 지문이 실려 왔으면 그 지문의 갈래에 맞는 영역으로 맞춘다 */
+  const sel = document.getElementById('srcsel');
+  const cur = sel.options[sel.selectedIndex];
+  if (cur && cur.value && cur.dataset.kind !== 'textbook'
+      && cur.dataset.genre !== AREA_INFO[AREA].genre) {
+    AREA = cur.dataset.genre === 'lit' ? 'lit' : 'read';
+  }
+  /* 교과서 지문은 그 학년군에서만 쓴다. 그 밖의 지문은 초등에서 못 쓴다.
+     작업 띠에서 지문을 눌러 왔을 때 지문이 숨지 않게 학년군을 맞춘다. */
+  if (cur && cur.value) {
+    const tb = cur.dataset.kind === 'textbook';
+    if (tb && BAND_INFO[cur.dataset.band]) {
+      BAND = cur.dataset.band;
+      if (AREA === 'gram' || (AREA === 'lit' && cur.dataset.genre !== 'lit')) AREA = 'read';
+    } else if (!tb && (RULES[BAND] || {}).read === 'textbook') {
+      BAND = 'h23';
+    }
+  }
+  setBand(BAND, true);
+  setArea(AREA, true);
+  newTab('paste');
+  loadSource();
+  /* 성취기준 목록에서 [문항 만들기]로 왔으면 그 성취기준을 눈에 띄게 한다 */
+  const want = "";
+  const el = want && [...document.querySelectorAll('#stdlist .std')]
+    .find(e => e.dataset.code === want);
+  if (el) {
+    el.classList.add('focus');
+    const more = el.querySelector('button.lnk[onclick^="showExtra"]');
+    if (more && !el.querySelector('.tcard:not(.extra)')) more.click();
+    setTimeout(() => el.scrollIntoView({ block: 'center' }), 300);
+  }
+});
+</script>
+
+  </div>
+</div>
+
+<!-- 작업 목록은 보이지 않게 읽어 두고 메뉴의 숫자와 화면 갱신에만 쓴다 -->
+<div id="joblist" hidden></div>
+
+<div id="modal-back" class="modal-back" hidden onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-x" onclick="closeModal()" aria-label="닫기">✕</button>
+    <div id="modal"></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+
+<div style="position:fixed;left:50%;top:0;transform:translateX(-50%);z-index:2000;background:#111;color:#fff;
+  font-size:12px;padding:4px 12px;border-radius:0 0 6px 6px">미리보기 · 예시 데이터입니다. 저장, 생성, 삭제는 되지 않습니다</div>
+<script>
+/* 정적 미리보기: 서버 조각은 미리 뽑아 둔 것으로 답하고, 쓰기는 막는다 */
+const FRAG = {"/jobs": "\n<div id=\"job-sum\" hidden\n     data-run=\"1\" data-q=\"0\"\n     data-done=\"2\" data-fail=\"0\"\n     data-total=\"3\"><\/div>\n\n\n  \n\n  \n    \n    \n    \n    <div class=\"job running\" data-id=\"36\">\n      <span class=\"job-s\">진행중<\/span>\n\n      <span class=\"job-t\">문항 생성 · 중1~3 문법 3문항 x 4<\/span>\n\n      <span class=\"job-p\">7/12 AI판정<\/span>\n\n      <span class=\"job-x\">\n        \n          \n          <form method=\"post\" action=\"/jobs/36/cancel\" class=\"inline\"\n                onsubmit=\"event.preventDefault(); jobPost(this)\">\n            <button class=\"btn xs\" type=\"submit\" \n                    title=\"다음 단계로 넘어갈 때 멈춥니다\">중단<\/button>\n          <\/form>\n        \n      <\/span>\n\n      \n    <\/div>\n  \n    \n    \n    \n    <a class=\"job done go\" data-id=\"35\" href=\"index.html\" title=\"눌러서 결과 보기\">\n      <span class=\"job-s\">완료<\/span>\n\n      <span class=\"job-t\">문항 생성 · 중1~3 문법 1문항 x 4<\/span>\n\n      <span class=\"job-p\"><\/span>\n\n      <span class=\"job-x\">\n        \n          <span class=\"job-go\">보기 ›<\/span>\n        \n      <\/span>\n\n      \n    <\/a>\n  \n    \n    \n    \n    <a class=\"job done go\" data-id=\"32\" href=\"index.html\" title=\"눌러서 결과 보기\">\n      <span class=\"job-s\">완료<\/span>\n\n      <span class=\"job-t\">문항 생성 · 중1~3 문법 1문항 x 4<\/span>\n\n      <span class=\"job-p\"><\/span>\n\n      <span class=\"job-x\">\n        \n          <span class=\"job-go\">보기 ›<\/span>\n        \n      <\/span>\n\n      \n    <\/a>\n  \n\n  \n    <form method=\"post\" action=\"/jobs/clear\" class=\"inline\"\n          onsubmit=\"event.preventDefault(); jobPost(this)\">\n      <button class=\"btn xs\" type=\"submit\">끝난 작업 지우기<\/button>\n    <\/form>\n  \n", "/work": "\n\n\n\n<div class=\"work\">\n<div class=\"page\">\n  <div class=\"page-h\">\n    <div class=\"grow\"><h1>작업 현황<\/h1>\n      <div class=\"sub\">동시 생성 2 · 최근 1시간 한도 초과(429) 0회<\/div><\/div>\n    \n    <form method=\"post\" action=\"/jobs/clear\" class=\"inline\"><button class=\"btn\" type=\"submit\">끝난 작업 지우기<\/button><\/form>\n    \n  <\/div>\n\n  \n\n  \n  \n  <div class=\"jcard \">\n    <div class=\"jcard-h\">\n      <span class=\"live\">진행 중<\/span>\n      <b>#36 · 문항 생성 · 중1~3 문법 3문항 x 4<\/b>\n      <span class=\"grow\"><\/span>\n      <span class=\"sm muted\">7 / 12 · 1분 42초 경과<\/span>\n      <form method=\"post\" action=\"/jobs/36/cancel\" class=\"inline\">\n        <button class=\"btn danger\" type=\"submit\" \n                title=\"다음 단계로 넘어갈 때 멈춥니다\">중단<\/button>\n      <\/form>\n    <\/div>\n    <div class=\"pbar\"><i style=\"width:58%\"><\/i><\/div>\n    \n    <table class=\"sgrid\">\n      <thead><tr><th style=\"width:80px\">문항<\/th><th>문항생성<\/th><th>구조검증<\/th><th>AI판정<\/th><th>AI응시<\/th><th>해설작성<\/th><th>상태<\/th><\/tr><\/thead>\n      <tbody>\n      \n      \n      \n      <tr>\n        <td>8 / 12<\/td>\n        \n          \n            <td><span class=\"dot done\"><\/span>10초<\/td>\n          \n        \n          \n            <td><span class=\"dot \"><\/span><\/td>\n          \n        \n          \n            <td><span class=\"dot done\"><\/span>6초<\/td>\n          \n        \n          \n            <td><span class=\"dot done\"><\/span>9초<\/td>\n          \n        \n          \n            <td><span class=\"dot \"><\/span><\/td>\n          \n        \n        <td><span class=\"st passed\">자동 점검 통과<\/span>\n             <span class=\"sm muted\">25초<\/span>\n          <\/td>\n      <\/tr>\n      \n      \n      \n      <tr>\n        <td>9 / 12<\/td>\n        \n          <td><span class=\"dot done\"><\/span><\/td>\n          \n        \n          <td><span class=\"dot done\"><\/span><\/td>\n          \n        \n          <td class=\"cur-t\"><span class=\"dot cur\"><\/span>진행 중<\/td>\n          \n        \n          <td><span class=\"dot\"><\/span><\/td>\n        \n          <td><span class=\"dot\"><\/span><\/td>\n        \n        <td>AI판정<\/td>\n      <\/tr>\n      \n      \n      \n      <tr>\n        <td>10 / 12<\/td>\n        \n          <td class=\"cur-t\"><span class=\"dot cur\"><\/span>진행 중<\/td>\n          \n        \n          <td><span class=\"dot\"><\/span><\/td>\n        \n          <td><span class=\"dot\"><\/span><\/td>\n        \n          <td><span class=\"dot\"><\/span><\/td>\n        \n          <td><span class=\"dot\"><\/span><\/td>\n        \n        <td>문항생성<\/td>\n      <\/tr>\n      \n      <\/tbody>\n    <\/table>\n    \n  <\/div>\n  \n\n  \n  <div class=\"lbl2\">끝난 작업<\/div>\n  <table class=\"tbl2\">\n    <thead><tr><th style=\"width:56px\">번호<\/th><th>내용<\/th><th style=\"width:70px\">만듦<\/th>\n      <th style=\"width:80px\">검토 필요<\/th><th style=\"width:60px\">실패<\/th><th style=\"width:90px\">소요<\/th>\n      <th style=\"width:80px\">429 대기<\/th><th style=\"width:110px\"><\/th><\/tr><\/thead>\n    <tbody>\n    \n    \n    <tr>\n      <td class=\"id\">#35<\/td>\n      <td class=\"q\" title=\"문항 생성 · 중1~3 문법 1문항 x 4\">문항 생성 · 중1~3 문법 1문항 x 4\n        \n        <\/td>\n      <td>4<\/td>\n      <td>0<\/td>\n      <td>0<\/td>\n      <td>22초<\/td>\n      <td class=\"\">0초<\/td>\n      <td><a class=\"btn xs\" href=\"index.html\">결과 보기<\/a>\n        <\/td>\n    <\/tr>\n    \n    \n    <tr>\n      <td class=\"id\">#32<\/td>\n      <td class=\"q\" title=\"문항 생성 · 중1~3 문법 1문항 x 4\">문항 생성 · 중1~3 문법 1문항 x 4\n        \n        <\/td>\n      <td>4<\/td>\n      <td>0<\/td>\n      <td>0<\/td>\n      <td>6분 7초<\/td>\n      <td class=\"warn-n\">360초<\/td>\n      <td><a class=\"btn xs\" href=\"index.html\">결과 보기<\/a>\n        <\/td>\n    <\/tr>\n    \n    <\/tbody>\n  <\/table>\n  \n<\/div>\n\n<aside class=\"work-side\">\n  <b style=\"font-size:16px\">단계별 평균 소요<\/b>\n  <div class=\"sm muted\">최근 20세트 기준<\/div>\n  \n  <div class=\"meter\"><div class=\"h\">문항생성<b>18초<\/b><\/div>\n    <div class=\"b\"><i style=\"width:100%\"><\/i><\/div><\/div>\n  \n  <div class=\"meter\"><div class=\"h\">구조검증<b>0초<\/b><\/div>\n    <div class=\"b\"><i style=\"width:0%\"><\/i><\/div><\/div>\n  \n  <div class=\"meter\"><div class=\"h\">AI판정<b>9초<\/b><\/div>\n    <div class=\"b\"><i style=\"width:50%\"><\/i><\/div><\/div>\n  \n  <div class=\"meter\"><div class=\"h\">AI응시<b>0초<\/b><\/div>\n    <div class=\"b\"><i style=\"width:0%\"><\/i><\/div><\/div>\n  \n  <div class=\"meter\"><div class=\"h\">해설작성<b>0초<\/b><\/div>\n    <div class=\"b\"><i style=\"width:0%\"><\/i><\/div><\/div>\n  \n  <div style=\"border-top:1px solid var(--line);margin-top:16px;padding-top:12px\">\n    <b>게이트웨이 (최근 1시간)<\/b>\n    <dl class=\"kv\" style=\"grid-template-columns:1fr auto\">\n      <dt>호출 수<\/dt><dd>0회<\/dd>\n      <dt>호출 시간 합<\/dt><dd>0초<\/dd>\n      <dt>한도 초과(429)<\/dt><dd>0회 · 대기 6분 0초<\/dd>\n      <dt>동시 생성<\/dt><dd>2 (AIKOR_PARALLEL)<\/dd>\n    <\/dl>\n    <p class=\"sm muted\">호출 기록은 작업이 끝날 때 남습니다. 동시에 돈 작업이 있으면 서로의 몫이 섞일 수 있습니다.<\/p>\n  <\/div>\n<\/aside>\n<\/div>", "/items/Gm13-024-1/preview": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Gm13-024-1<\/b>\n  <span class=\"st passed\">자동 점검 통과<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">중1~3 문법 · 단어<\/div>\n<div class=\"sm muted\">[9국04-02] 단어의 짜임을 분석하여 새말 형성의 원리를 이해한다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">〈보기〉의 ㉠~㉤에 대한 설명으로 알맞은 것은?<\/p>\n  <div class=\"bx\">㉠ 맨발   ㉡ 첫눈   ㉢ 볶음밥   ㉣ 지우개   ㉤ 풋고추<\/div>\n  <ol>\n    \n    <li class=\"\">① ㉠은 어근 &#39;맨&#39;과 어근 &#39;발&#39;이 결합하여 만들어졌다.<\/li>\n    \n    <li class=\"\">② ㉡은 접두사 &#39;첫-&#39;이 어근 &#39;눈&#39;에 붙어 만들어졌다.<\/li>\n    \n    <li class=\"ans\">③ ㉢은 합성어이다.<\/li>\n    \n    <li class=\"\">④ ㉣은 합성어이다.<\/li>\n    \n    <li class=\"\">⑤ ㉤은 어근 &#39;풋&#39;과 어근 &#39;고추&#39;가 결합하여 만들어졌다.<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>표준국어대사전 표제어 구성<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>③ 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Gm13-024-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Gm13-024-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Gm13-024-1')\">삭제<\/button>\n  \n<\/div>", "/items/Gm13-024-1": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Gm13-024-1<\/b>\n  <span class=\"st passed\">자동 점검 통과<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">중1~3 문법 · 단어<\/div>\n<div class=\"sm muted\">[9국04-02] 단어의 짜임을 분석하여 새말 형성의 원리를 이해한다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">〈보기〉의 ㉠~㉤에 대한 설명으로 알맞은 것은?<\/p>\n  <div class=\"bx\">㉠ 맨발   ㉡ 첫눈   ㉢ 볶음밥   ㉣ 지우개   ㉤ 풋고추<\/div>\n  <ol>\n    \n    <li class=\"\">① ㉠은 어근 &#39;맨&#39;과 어근 &#39;발&#39;이 결합하여 만들어졌다.<\/li>\n    \n    <li class=\"\">② ㉡은 접두사 &#39;첫-&#39;이 어근 &#39;눈&#39;에 붙어 만들어졌다.<\/li>\n    \n    <li class=\"ans\">③ ㉢은 합성어이다.<\/li>\n    \n    <li class=\"\">④ ㉣은 합성어이다.<\/li>\n    \n    <li class=\"\">⑤ ㉤은 어근 &#39;풋&#39;과 어근 &#39;고추&#39;가 결합하여 만들어졌다.<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>표준국어대사전 표제어 구성<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>③ 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Gm13-024-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Gm13-024-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Gm13-024-1')\">삭제<\/button>\n  \n<\/div>", "/items/Gm13-023-1/preview": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Gm13-023-1<\/b>\n  <span class=\"st review\">검토 필요<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">중1~3 문법 · 단어<\/div>\n<div class=\"sm muted\">[9국04-02] 단어의 짜임을 분석하여 새말 형성의 원리를 이해한다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">〈보기〉의 ㉠~㉤에 대한 설명으로 알맞은 것은?<\/p>\n  <div class=\"bx\">㉠ 놀이터   ㉡ 첫눈   ㉢ 맨발   ㉣ 개떡   ㉤ 덮개<\/div>\n  <ol>\n    \n    <li class=\"\">① ㉠은 어근 &#39;놀이&#39;에 접미사 &#39;-터&#39;가 붙어 만들어졌다.<\/li>\n    \n    <li class=\"\">② ㉡은 접두사 &#39;첫-&#39;이 어근 &#39;눈&#39;에 붙어 만들어졌다.<\/li>\n    \n    <li class=\"ans\">③ ㉢은 접두사 &#39;맨-&#39;이 어근 &#39;발&#39;에 붙어 만들어졌다.<\/li>\n    \n    <li class=\"\">④ ㉣은 합성어이다.<\/li>\n    \n    <li class=\"\">⑤ ㉤은 어근 &#39;덮-&#39;과 어근 &#39;개&#39;가 결합하여 만들어졌다.<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>표준국어대사전 표제어 구성<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>③ 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Gm13-023-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Gm13-023-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Gm13-023-1')\">삭제<\/button>\n  \n<\/div>", "/items/Gm13-023-1": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Gm13-023-1<\/b>\n  <span class=\"st review\">검토 필요<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">중1~3 문법 · 단어<\/div>\n<div class=\"sm muted\">[9국04-02] 단어의 짜임을 분석하여 새말 형성의 원리를 이해한다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">〈보기〉의 ㉠~㉤에 대한 설명으로 알맞은 것은?<\/p>\n  <div class=\"bx\">㉠ 놀이터   ㉡ 첫눈   ㉢ 맨발   ㉣ 개떡   ㉤ 덮개<\/div>\n  <ol>\n    \n    <li class=\"\">① ㉠은 어근 &#39;놀이&#39;에 접미사 &#39;-터&#39;가 붙어 만들어졌다.<\/li>\n    \n    <li class=\"\">② ㉡은 접두사 &#39;첫-&#39;이 어근 &#39;눈&#39;에 붙어 만들어졌다.<\/li>\n    \n    <li class=\"ans\">③ ㉢은 접두사 &#39;맨-&#39;이 어근 &#39;발&#39;에 붙어 만들어졌다.<\/li>\n    \n    <li class=\"\">④ ㉣은 합성어이다.<\/li>\n    \n    <li class=\"\">⑤ ㉤은 어근 &#39;덮-&#39;과 어근 &#39;개&#39;가 결합하여 만들어졌다.<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>표준국어대사전 표제어 구성<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>③ 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Gm13-023-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Gm13-023-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Gm13-023-1')\">삭제<\/button>\n  \n<\/div>", "/items/Gm13-018-1/preview": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Gm13-018-1<\/b>\n  <span class=\"st approved\">승인<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">중1~3 문법 · 문장<\/div>\n<div class=\"sm muted\">[9국04-04] 문장의 짜임을 이해하고 표현 효과를 고려하여 문장을 구성한다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">〈보기〉의 ㉠~㉤에 대한 설명으로 알맞은 것은?<\/p>\n  <div class=\"bx\">㉠ 할아버지는 마음이 따뜻하시다.\n㉡ 내가 어제 읽은 책은 무척 재미있었다.\n㉢ 눈이 많이 내리면 학교가 쉰다.\n㉣ 할머니께서 시골에서 감자와 고구마를 보내셨다.\n㉤ 주말에 우리는 영화를 보거나 산책을 한다.<\/div>\n  <ol>\n    \n    <li class=\"\">① ㉣은 겹문장이다.<\/li>\n    \n    <li class=\"\">② ㉡은 명사절을 안은 문장이다.<\/li>\n    \n    <li class=\"ans\">③ ㉠은 서술절을 안은 문장이다.<\/li>\n    \n    <li class=\"\">④ ㉤은 종속적으로 이어진 문장이다.<\/li>\n    \n    <li class=\"\">⑤ ㉢은 대등하게 이어진 문장이다.<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>문장의 짜임(학교 문법)<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>③ 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Gm13-018-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Gm13-018-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Gm13-018-1')\">삭제<\/button>\n  \n<\/div>", "/items/Gm13-018-1": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Gm13-018-1<\/b>\n  <span class=\"st approved\">승인<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">중1~3 문법 · 문장<\/div>\n<div class=\"sm muted\">[9국04-04] 문장의 짜임을 이해하고 표현 효과를 고려하여 문장을 구성한다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">〈보기〉의 ㉠~㉤에 대한 설명으로 알맞은 것은?<\/p>\n  <div class=\"bx\">㉠ 할아버지는 마음이 따뜻하시다.\n㉡ 내가 어제 읽은 책은 무척 재미있었다.\n㉢ 눈이 많이 내리면 학교가 쉰다.\n㉣ 할머니께서 시골에서 감자와 고구마를 보내셨다.\n㉤ 주말에 우리는 영화를 보거나 산책을 한다.<\/div>\n  <ol>\n    \n    <li class=\"\">① ㉣은 겹문장이다.<\/li>\n    \n    <li class=\"\">② ㉡은 명사절을 안은 문장이다.<\/li>\n    \n    <li class=\"ans\">③ ㉠은 서술절을 안은 문장이다.<\/li>\n    \n    <li class=\"\">④ ㉤은 종속적으로 이어진 문장이다.<\/li>\n    \n    <li class=\"\">⑤ ㉢은 대등하게 이어진 문장이다.<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>문장의 짜임(학교 문법)<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>③ 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Gm13-018-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Gm13-018-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Gm13-018-1')\">삭제<\/button>\n  \n<\/div>", "/items/Gh23-004-1/preview": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Gh23-004-1<\/b>\n  <span class=\"st passed\">자동 점검 통과<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">고2~3 문법 · 문장<\/div>\n<div class=\"sm muted\">[12화언01-03] 품사와 문장 구조에 대한 지식을 활용하여 언어 자료를 분석하고 설명한다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">〈보기〉의 ㉠~㉤에 대해 탐구한 내용으로 적절한 것은?<\/p>\n  <div class=\"bx\">㉠ 내가 어제 읽은 책은 재미있었지만 결말이 아쉬웠다.\n㉡ 비가 오는 소리가 들려서 나는 창문을 닫았다.\n㉢ 나는 그가 범인임을 알았지만 아무에게도 말하지 않았다.\n㉣ 민지는 &#34;같이 가자.&#34;라고 외쳤지만 아무도 대답하지 않았다.\n㉤ 동생이 상을 받았음이 알려져서 온 가족이 기뻐했다.<\/div>\n  <ol>\n    \n    <li class=\"\">① ㉠은 관형절 &#39;내가 어제 읽은&#39;에는 생략된 성분이 없고, 앞 절과 뒤 절이 대등하게 이어져 있다.<\/li>\n    \n    <li class=\"ans\">② ㉡은 관형절 &#39;비가 오는&#39;에는 생략된 성분이 없고, 연결 어미 &#39;-어서&#39;가 앞뒤 절을 &#39;원인&#39;의 관계로 잇는다.<\/li>\n    \n    <li class=\"\">③ ㉢은 명사절 &#39;그가 범인임&#39;이 주어의 구실을 하고, 연결 어미 &#39;-지만&#39;이 앞뒤 절을 &#39;대조&#39;의 관계로 잇는다.<\/li>\n    \n    <li class=\"\">④ ㉣은 인용 조사 &#39;라고&#39;를 써서 남의 말을 간접 인용하였고, 앞 절과 뒤 절이 대등하게 이어져 있다.<\/li>\n    \n    <li class=\"\">⑤ ㉤은 명사절 &#39;동생이 상을 받았음&#39;이 주어의 구실을 하고, 앞 절과 뒤 절이 대등하게 이어져 있다.<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>문장 구조(학교 문법)<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>② 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Gh23-004-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Gh23-004-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Gh23-004-1')\">삭제<\/button>\n  \n<\/div>", "/items/Gh23-004-1": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Gh23-004-1<\/b>\n  <span class=\"st passed\">자동 점검 통과<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">고2~3 문법 · 문장<\/div>\n<div class=\"sm muted\">[12화언01-03] 품사와 문장 구조에 대한 지식을 활용하여 언어 자료를 분석하고 설명한다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">〈보기〉의 ㉠~㉤에 대해 탐구한 내용으로 적절한 것은?<\/p>\n  <div class=\"bx\">㉠ 내가 어제 읽은 책은 재미있었지만 결말이 아쉬웠다.\n㉡ 비가 오는 소리가 들려서 나는 창문을 닫았다.\n㉢ 나는 그가 범인임을 알았지만 아무에게도 말하지 않았다.\n㉣ 민지는 &#34;같이 가자.&#34;라고 외쳤지만 아무도 대답하지 않았다.\n㉤ 동생이 상을 받았음이 알려져서 온 가족이 기뻐했다.<\/div>\n  <ol>\n    \n    <li class=\"\">① ㉠은 관형절 &#39;내가 어제 읽은&#39;에는 생략된 성분이 없고, 앞 절과 뒤 절이 대등하게 이어져 있다.<\/li>\n    \n    <li class=\"ans\">② ㉡은 관형절 &#39;비가 오는&#39;에는 생략된 성분이 없고, 연결 어미 &#39;-어서&#39;가 앞뒤 절을 &#39;원인&#39;의 관계로 잇는다.<\/li>\n    \n    <li class=\"\">③ ㉢은 명사절 &#39;그가 범인임&#39;이 주어의 구실을 하고, 연결 어미 &#39;-지만&#39;이 앞뒤 절을 &#39;대조&#39;의 관계로 잇는다.<\/li>\n    \n    <li class=\"\">④ ㉣은 인용 조사 &#39;라고&#39;를 써서 남의 말을 간접 인용하였고, 앞 절과 뒤 절이 대등하게 이어져 있다.<\/li>\n    \n    <li class=\"\">⑤ ㉤은 명사절 &#39;동생이 상을 받았음&#39;이 주어의 구실을 하고, 앞 절과 뒤 절이 대등하게 이어져 있다.<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>문장 구조(학교 문법)<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>② 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Gh23-004-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Gh23-004-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Gh23-004-1')\">삭제<\/button>\n  \n<\/div>", "/items/Ge34-007-1/preview": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Ge34-007-1<\/b>\n  <span class=\"st approved\">승인<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">초3~4 문법 · 담화<\/div>\n<div class=\"sm muted\">[4국04-04] 글과 담화에 쓰인 높임 표현과 지시⋅접속 표현을 이해하고 상황에 맞게 표현한다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">〈보기〉의 상황에서 높임 표현을 바르게 쓴 문장은 무엇인가요?<\/p>\n  <div class=\"bx\">민지는 주말에 할머니 댁에 가서 하루를 지냈습니다. 그날 있었던 일을 일기로 썼습니다. (문장 속 &#39;나&#39; 는 민지입니다.)<\/div>\n  <ol>\n    \n    <li class=\"\">① 나는 저녁을 먹고 일찍 주무셨다.<\/li>\n    \n    <li class=\"ans\">② 할머니께서 마당에 계셨다.<\/li>\n    \n    <li class=\"\">③ 할머니께서 잘 왔다고 말했다.<\/li>\n    \n    <li class=\"\">④ 할머니께서 나에게 용돈을 드렸다.<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>표준국어대사전 높임말<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>② 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Ge34-007-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Ge34-007-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Ge34-007-1')\">삭제<\/button>\n  \n<\/div>", "/items/Ge34-007-1": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Ge34-007-1<\/b>\n  <span class=\"st approved\">승인<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">초3~4 문법 · 담화<\/div>\n<div class=\"sm muted\">[4국04-04] 글과 담화에 쓰인 높임 표현과 지시⋅접속 표현을 이해하고 상황에 맞게 표현한다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">〈보기〉의 상황에서 높임 표현을 바르게 쓴 문장은 무엇인가요?<\/p>\n  <div class=\"bx\">민지는 주말에 할머니 댁에 가서 하루를 지냈습니다. 그날 있었던 일을 일기로 썼습니다. (문장 속 &#39;나&#39; 는 민지입니다.)<\/div>\n  <ol>\n    \n    <li class=\"\">① 나는 저녁을 먹고 일찍 주무셨다.<\/li>\n    \n    <li class=\"ans\">② 할머니께서 마당에 계셨다.<\/li>\n    \n    <li class=\"\">③ 할머니께서 잘 왔다고 말했다.<\/li>\n    \n    <li class=\"\">④ 할머니께서 나에게 용돈을 드렸다.<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>표준국어대사전 높임말<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>② 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Ge34-007-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Ge34-007-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Ge34-007-1')\">삭제<\/button>\n  \n<\/div>", "/items/Ge12-001-1/preview": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Ge12-001-1<\/b>\n  <span class=\"st passed\">자동 점검 통과<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">초1~2 문법 · 어문 규범<\/div>\n<div class=\"sm muted\">[2국04-01] 한글 자모의 이름과 소릿값을 알고 정확하게 발음하고 쓴다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">자음자와 그 이름을 바르게 짝지은 것은 무엇인가요?<\/p>\n  \n  <ol>\n    \n    <li class=\"\">① ㄱ - 기윽<\/li>\n    \n    <li class=\"ans\">② ㄷ - 디귿<\/li>\n    \n    <li class=\"\">③ ㅅ - 시읏<\/li>\n    \n    <li class=\"\">④ ㅈ - 지읃<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>한글 맞춤법 제4항<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>② 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Ge12-001-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Ge12-001-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Ge12-001-1')\">삭제<\/button>\n  \n<\/div>", "/items/Ge12-001-1": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Ge12-001-1<\/b>\n  <span class=\"st passed\">자동 점검 통과<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">초1~2 문법 · 어문 규범<\/div>\n<div class=\"sm muted\">[2국04-01] 한글 자모의 이름과 소릿값을 알고 정확하게 발음하고 쓴다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">자음자와 그 이름을 바르게 짝지은 것은 무엇인가요?<\/p>\n  \n  <ol>\n    \n    <li class=\"\">① ㄱ - 기윽<\/li>\n    \n    <li class=\"ans\">② ㄷ - 디귿<\/li>\n    \n    <li class=\"\">③ ㅅ - 시읏<\/li>\n    \n    <li class=\"\">④ ㅈ - 지읃<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>한글 맞춤법 제4항<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>② 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Ge12-001-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Ge12-001-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Ge12-001-1')\">삭제<\/button>\n  \n<\/div>", "/items/Gm13-012-1/preview": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Gm13-012-1<\/b>\n  <span class=\"st review\">검토 필요<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">중1~3 문법 · 단어<\/div>\n<div class=\"sm muted\">[9국04-03] 품사의 종류와 특성을 이해하고 국어 자료를 분석한다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">〈보기〉의 ㉠~㉤에 대한 설명으로 알맞은 것은?<\/p>\n  <div class=\"bx\">과학 시간에 우리는 ㉠<u>새로운<\/u> 실험 도구를 꺼냈다. 여러 색의 용액을 ㉡<u>조용히<\/u> 섞으며 물방울을 관찰했다. ㉢<u>천천히<\/u> 가열한 뒤 ㉣<u>모든<\/u> 학생이 ㉤<u>맑은<\/u> 빛을 보았다.<\/div>\n  <ol>\n    \n    <li class=\"\">① ㉠은 형태가 변하지 않는 말이다.<\/li>\n    \n    <li class=\"\">② ㉡은 형용사이다.<\/li>\n    \n    <li class=\"ans\">③ ㉢은 부사이다.<\/li>\n    \n    <li class=\"\">④ ㉣은 용언에 속한다.<\/li>\n    \n    <li class=\"\">⑤ ㉤은 관형사이다.<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>표준국어대사전 품사<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>③ 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Gm13-012-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Gm13-012-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Gm13-012-1')\">삭제<\/button>\n  \n<\/div>", "/items/Gm13-012-1": "\n\n<div class=\"page-h\" style=\"margin:0 0 6px\">\n  <b>Gm13-012-1<\/b>\n  <span class=\"st review\">검토 필요<\/span>\n  <span class=\"st data\">자료 문항<\/span>\n  \n<\/div>\n<div class=\"sm muted\">중1~3 문법 · 단어<\/div>\n<div class=\"sm muted\">[9국04-03] 품사의 종류와 특성을 이해하고 국어 자료를 분석한다.<\/div>\n\n<div class=\"paperq\">\n  \n  <p class=\"qq\">〈보기〉의 ㉠~㉤에 대한 설명으로 알맞은 것은?<\/p>\n  <div class=\"bx\">과학 시간에 우리는 ㉠<u>새로운<\/u> 실험 도구를 꺼냈다. 여러 색의 용액을 ㉡<u>조용히<\/u> 섞으며 물방울을 관찰했다. ㉢<u>천천히<\/u> 가열한 뒤 ㉣<u>모든<\/u> 학생이 ㉤<u>맑은<\/u> 빛을 보았다.<\/div>\n  <ol>\n    \n    <li class=\"\">① ㉠은 형태가 변하지 않는 말이다.<\/li>\n    \n    <li class=\"\">② ㉡은 형용사이다.<\/li>\n    \n    <li class=\"ans\">③ ㉢은 부사이다.<\/li>\n    \n    <li class=\"\">④ ㉣은 용언에 속한다.<\/li>\n    \n    <li class=\"\">⑤ ㉤은 관형사이다.<\/li>\n    \n  <\/ol>\n<\/div>\n\n<div class=\"lbl2\">검증 요약<\/div>\n<dl class=\"kv\">\n  <dt>정답 근거<\/dt><dd>표준국어대사전 품사<\/dd>\n  <dt>다른 모델 풀이<\/dt><dd>③ 선택 · 정답과 같음<\/dd>\n  <dt>AI 판정<\/dt><dd>성취기준 부합 100 · 오답 매력도 90<\/dd>\n  <dt>AI 응시<\/dt><dd>하지 않음<\/dd>\n  \n<\/dl>\n\n<div class=\"bar\" style=\"margin-top:16px\">\n  <a class=\"btn primary\" href=\"review-Gm13-012-1.html\">검수 열기<\/a>\n  <form method=\"post\" action=\"/cart/add\" class=\"inline\">\n    <input type=\"hidden\" name=\"ids\" value=\"Gm13-012-1\">\n    <button class=\"btn\" type=\"submit\">바구니에 담기<\/button>\n  <\/form>\n  \n    <button class=\"btn danger\" onclick=\"openModal('/confirm/delete?ids=Gm13-012-1')\">삭제<\/button>\n  \n<\/div>"};
+const _fetch = window.fetch;
+window.fetch = async (url, opt) => {
+  const u = String(url).replace(location.origin, '');
+  const key = u.split('?')[0];
+  if (FRAG[key] !== undefined) return new Response(FRAG[key], {status: 200});
+  if (opt && opt.method === 'POST') { demoNote(); throw new Error('demo'); }
+  return new Response('<p class="muted">미리보기에서는 볼 수 없습니다.</p>', {status: 200});
+};
+function demoNote() { alert('미리보기입니다. 저장, 생성, 삭제는 실제 프로그램에서만 됩니다.'); }
+document.addEventListener('submit', e => {
+  if ((e.target.getAttribute('method') || 'get').toLowerCase() === 'post' || e.target.id === 'genform') {
+    e.preventDefault(); e.stopImmediatePropagation(); demoNote();
+  } else { e.preventDefault(); }
+}, true);
+</script>
+</body>
+</html>
